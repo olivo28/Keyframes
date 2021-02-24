@@ -60,6 +60,8 @@ El script tambien puede generar QPFiles para x264/x265
 
 Para usarlo, se requiere vapoursynth en su totalidad...
 
+    import keyframes as kf
+    
     kf.generate_qpfile_double(clip=clip, out_path="archivodesalida")
 
 Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile al x264/x265 para que "escriba" en el video, la información de los keyframes
