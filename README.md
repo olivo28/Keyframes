@@ -41,7 +41,8 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
         --reescribir = Por defecto, el script comprueba si existe o no el archivo, en caso de existir, el proceso se salta... con la opcion, dicho archivo es reescrito.
 
    Usandolo como modulo de Vapoursynth:
-    import keyframes as kf
+     
+     import keyframes as kf
 
         kf.generate_keyframes_single(clip=clip, out_path="archivodesalida", reescribir="1")
         kf.generate_keyframes_double(clip=clip, out_path="archivodesalida", reescribir="1")
