@@ -71,6 +71,7 @@ def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
 
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
+
     if not use_scxvid:
         clip1 = core.wwxd.WWXD(clip1)
     else:
@@ -85,7 +86,7 @@ def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
         if scenechange:
             out_txt3 += "%d\n" % i
         if i % 1 == 0:
-            print(f"Generando keyframe: {i}/{frame_total(clip)} frames", end="\r")
+            print(f"Generando keyframe: {i}/{frame_total(clip1)} frames", end="\r")
 
     print("\n")
 
@@ -118,7 +119,7 @@ def doble(clip, out_path, qp_file=None) -> None:
 
     if not type(clip) is vs.VideoNode:
         clip1 = core.lsmas.LWLibavSource(clip)
-            
+
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
     clip1 = core.scxvid.Scxvid(clip1)
@@ -133,9 +134,9 @@ def doble(clip, out_path, qp_file=None) -> None:
                 out_txt += "%d I -1\n" % i
         if i % 1 == 0:
             if not qp_file:
-                print(f"Generando keyframes: {i}/{frame_total(clip)} frames", end="\r")
+                print(f"Generando keyframes: {i}/{frame_total(clip1)} frames", end="\r")
             else:
-                print(f"Generando QPFile: {i}/{frame_total(clip)} frames", end="\r")
+                print(f"Generando QPFile: {i}/{frame_total(clip1)} frames", end="\r")
                 
     print("\n")
 
