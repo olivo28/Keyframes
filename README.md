@@ -25,7 +25,7 @@
 
    PD: ffmpeg deberia estar en el PATH del usuario
     
-todo: mejorar el calculo de duracion del video... acomodar el scxvid en generate_keyframe_single... terminar el argumento --autismo
+todo: mejorar el calculo de duracion del video... terminar el argumento --autismo
 
 # ¿Cómo usar?
 
@@ -36,7 +36,7 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
     py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--reescribir] clip
 
     Todas los argumentos son opcionales, menos el clip...
-        --use-scxvid = le dice al script que use scxvid en vez de WWXD. [Roto el comprobador, acomodando]
+        --use-scxvid = le dice al script que use scxvid en vez de WWXD.
         --use-doble = le dice al script que use tanto scxvid como WWXD para generar el keyframe. [Recomendado]
         --out-file OUT_FILE = el archivo al que escribir los keyframes [Opcional, en caso de no especificar uno, se creara con el mismo nombre del video agregando: _keyframes.txt]
         --reescribir = Por defecto, el script comprueba si existe o no el archivo, en caso de existir, el proceso se salta... con la opcion, dicho archivo es reescrito.

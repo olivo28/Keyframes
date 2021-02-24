@@ -32,7 +32,7 @@ def info_video(clip, out_path) -> None:
     print(f"\nInformación del video...\nVideo: {name}", \
         f"\nResolución: {clip.width}x{clip.height}p", \
         f"\nCantidad de frames: {clip.num_frames}", \
-        f" - Duración: {calcular_tiempo(clip)}", \
+        f"- Duración: {calcular_tiempo(clip)}", \
         f"\nFramerate: {clip.fps}", \
         f"\nFormato: {clip.format.name}", \
         f"\nArchivo de Keyframes: {out_path}\n")
@@ -74,12 +74,18 @@ def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
         name = clip
 
     clip1 = core.fmtc.resample(clip, css="420")
-    clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)  
-    clip1 = core.scxvid.Scxvid(clip1) if use_scxvid else core.wwxd.WWXD(clip1)
+    clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
+    if not use_scxvid:
+        clip1 = core.wwxd.WWXD(clip1)
+    else:
+        clip1 = core.scxvid.Scxvid(clip1)
 
     for i in range(clip1.num_frames):
         props = clip1.get_frame(i).props
-        scenechange = props._SceneChangePrev if use_scxvid else props.Scenechange
+        if not use_scxvid:
+            scenechange = props.Scenechange
+        else:
+            scenechange = props._SceneChangePrev
         if scenechange:
             out_txt3 += "%d\n" % i
         if i % 1 == 0:
@@ -164,7 +170,7 @@ def doble(clip, out_path, qp_file=None) -> None:
 
 
 
-def generate_keyframes_single(clip, out_path=None, reescribir=None) -> None:
+def generate_keyframes_single(clip, out_path=None, reescribir=None, use_scxvid=None) -> None:
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
@@ -177,13 +183,13 @@ def generate_keyframes_single(clip, out_path=None, reescribir=None) -> None:
             print("Generando keyframes...")
             print("Ya existe el archivo...\nSaltando proceso.")            
         else:
-            if args.use_scxvid:
-                keyframe_simple(clip, out_path, args.use_scxvid)
+            if use_scxvid:
+                keyframe_simple(clip, out_path, use_scxvid)
             else:
                 keyframe_simple(clip, out_path)    
     else:
-        if args.use_scxvid:
-            keyframe_simple(clip, out_path, args.use_scxvid)
+        if use_scxvid:
+            keyframe_simple(clip, out_path, use_scxvid)
         else:
             keyframe_simple(clip, out_path)
 
@@ -236,7 +242,10 @@ def main():
     if args.use_doble:
         generate_keyframes_double(clip, out_path, args.reescribir)
     else:
-        generate_keyframes_single(clip, out_path, args.reescribir)
+        if not args.use_scxvid:
+            generate_keyframes_single(clip, out_path, args.reescribir)
+        else:
+            generate_keyframes_single(clip, out_path, args.reescribir, args.use_scxvid)
 
     try:
         os.remove(f"{args.clip}.lwi")
