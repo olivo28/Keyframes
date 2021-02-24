@@ -23,7 +23,7 @@
    * vapoursynth-scxvid (Opcional: solo si se usa el parametro de --use-scxvid) (https://github.com/dubhater/vapoursynth-scxvid)
    * ffmpeg/ffprobe: (https://ffmpeg.org)
 
-   PD: ffmpeg deberia estár en el PATH del usuario
+   PD: ffmpeg deberia estar en el PATH del usuario
     
 todo: mejorar el calculo de duracion del video... acomodar el scxvid en generate_keyframe_single... terminar el argumento --autismo
 
@@ -31,7 +31,8 @@ todo: mejorar el calculo de duracion del video... acomodar el scxvid en generate
 
 El script sirve en 2 formas, usando Python o desde Vapoursynth
     
-    Python:
+   Python:
+   
     py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--reescribir] clip
 
     Todas los argumentos son opcionales, menos el clip...
