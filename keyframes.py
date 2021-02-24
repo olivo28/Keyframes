@@ -50,9 +50,6 @@ def iframes(clip):
 
     out_txt1 = ""
 
-    if not os.path.exists(clip):
-        os.mkdir(clip)
-
     command = 'ffprobe -v error -show_entries frame=pict_type -of default=noprint_wrappers=1'.split()
     out = subprocess.check_output(command + [clip]).decode()
     f_types = out.replace('pict_type=','').split()
@@ -70,10 +67,9 @@ def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
     out_txt3 = ""
 
     if not type(clip) is vs.VideoNode:
-        clip = core.lsmas.LWLibavSource(clip)
-        name = clip
+        clip1 = core.lsmas.LWLibavSource(clip)
 
-    clip1 = core.fmtc.resample(clip, css="420")
+    clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
     if not use_scxvid:
         clip1 = core.wwxd.WWXD(clip1)
@@ -95,7 +91,7 @@ def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
 
     print("Analizando Keyframes generados por x264...")
 
-    out_txt1 = iframes(name)
+    out_txt1 = iframes(clip)
     out_txt1 = out_txt1.splitlines()
 
     print("Comparando, eliminando y uniendo keyframes...")
@@ -121,10 +117,9 @@ def doble(clip, out_path, qp_file=None) -> None:
     out_txt3 = ""
 
     if not type(clip) is vs.VideoNode:
-        clip = core.lsmas.LWLibavSource(clip)
-        name = clip
-
-    clip1 = core.fmtc.resample(clip, css="420")
+        clip1 = core.lsmas.LWLibavSource(clip)
+            
+    clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
     clip1 = core.scxvid.Scxvid(clip1)
     clip1 = core.wwxd.WWXD(clip1)
@@ -142,13 +137,13 @@ def doble(clip, out_path, qp_file=None) -> None:
             else:
                 print(f"Generando QPFile: {i}/{frame_total(clip)} frames", end="\r")
                 
-        print("\n")
+    print("\n")
 
     if not qp_file:
 
         print("Analizando Keyframes generados por x264...")
 
-        out_txt1 = iframes(name)
+        out_txt1 = iframes(clip)
         out_txt1 = out_txt1.splitlines()
 
         print("Comparando, eliminando y uniendo keyframes...")
