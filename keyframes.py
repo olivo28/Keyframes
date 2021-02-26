@@ -68,6 +68,8 @@ def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
 
     if not type(clip) is vs.VideoNode:
         clip1 = core.lsmas.LWLibavSource(clip)
+    else:
+        clip1 = clip
 
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
@@ -119,6 +121,8 @@ def doble(clip, out_path, qp_file=None) -> None:
 
     if not type(clip) is vs.VideoNode:
         clip1 = core.lsmas.LWLibavSource(clip)
+    else:
+        clip1 = clip
 
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = core.resize.Bilinear(clip1, 1280, 720, format=vs.YUV420P8)
