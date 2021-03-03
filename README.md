@@ -22,6 +22,7 @@
    * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
    * vapoursynth-scxvid (Opcional: solo si se usa el parametro de --use-scxvid) (https://github.com/dubhater/vapoursynth-scxvid)
    * ffmpeg/ffprobe: (https://ffmpeg.org)
+   * L-SMASH-Works (https://github.com/VFR-maniac/L-SMASH-Works)
 
    PD: ffmpeg deberia estar en el PATH del usuario
     
