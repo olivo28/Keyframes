@@ -18,7 +18,7 @@
    Script original editado fuertemente para mostrar más datos, eliminada la funcion de slices, que producia peor resultado a cambio de una mayor velocidad de procesado
 
    Dependencias:
-   * Python 3.7 o mayo
+   * Python 3.7 o mayor
    * FTMC (https://github.com/EleonoreMizo/fmtconv)
    * VapourSynth
    * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
