@@ -10,6 +10,8 @@
    V1.4 - Vuelto a refactorizar el codigo para que sea mas entendible y menos repetitivo...
 
    V1.5 - Agregada funcion que revisa los keyframes generados por x264, para luego compararlos y agregar las diferencias al keyframe generado con scxvid, wwxd o ambos...
+
+   V1.6 - Agregada función para extrear audios de los videos... [Tip: extraerlo en el codec que es...]
     
    Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
 
@@ -66,3 +68,19 @@ Para usarlo, se requiere vapoursynth en su totalidad...
     kf.generate_qpfile_double(clip=clip, out_path="archivodesalida")
 
 Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile al x264/x265 para que "escriba" en el video, la información de los keyframes
+
+# Audio
+
+También es posible extrear el audio de un video...
+
+    import keyframes as kf
+
+    kf.extraer_audio(clip, codec)
+
+Un ejemplo:
+
+    kf.extraer_audio("[SubsPlease] Tropical-Rouge! Precure - 04 (1080p) [2AE07A72].mkv", codec="aac")
+
+Siempre hay que extrearlo en su codec correspondiente, si el mediainfo muestra que es A_AAC, es mejor extraerlo como aac, si muestra que es A_FLAC, es mejor extraerlo como flac y así...
+
+En su mayoria, los webrip (tanto de Funimation como CR) son A_AAC [aac] en su mayoria, en cambio, Amazon y Netflix, normalmente es A_EAC3 [eac3]

@@ -1,5 +1,6 @@
 import argparse
 import os
+import ntpath
 import subprocess
 from collections import OrderedDict
 
@@ -9,7 +10,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.5'
+__version__ = '1.6'
 
 
 def calcular_tiempo(clip):
@@ -60,6 +61,10 @@ def iframes(clip):
 
     return out_txt1
 
+def extraer_audio(clip, codec):
+    
+    command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{ntpath.basename(clip)[:-4]}.{codec}"'
+    subprocess.check_output(command)
 
 def keyframe_simple(clip, out_path, use_scxvid=None) -> None:
 
