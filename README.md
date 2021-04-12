@@ -1,5 +1,5 @@
 # Keyframes
- Script para generar Keyframes [Standalone] y QPFiles [Desde Vapoursynth] escritos en Python
+ Script para generar Keyframes [Standalone] y QPFiles [Vapoursynth] escritos en Python
 
    V1.1 - Refactorizado de todo el codigo, agregadas algunas funciones
 
@@ -12,6 +12,8 @@
    V1.5 - Agregada funcion que revisa los keyframes generados por x264, para luego compararlos y agregar las diferencias al keyframe generado con scxvid, wwxd o ambos...
 
    V1.6 - Agregada función para extrear audios de los videos... [Tip: extraerlo en el codec que es...]
+
+   V1.7 - Función de "autismo" agregada, mejorado el calculo de la duración del video, mostrará el tiempo correcto dependiendo de a que framerate este...
     
    Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
 
@@ -22,13 +24,11 @@
    * FTMC (https://github.com/EleonoreMizo/fmtconv)
    * VapourSynth
    * wwxd (https://github.com/dubhater/vapoursynth-wwxd)
-   * vapoursynth-scxvid (Opcional: solo si se usa el parametro de --use-scxvid) (https://github.com/dubhater/vapoursynth-scxvid)
-   * ffmpeg/ffprobe: (https://ffmpeg.org)
+   * vapoursynth-scxvid (https://github.com/dubhater/vapoursynth-scxvid)
+   * ffmpeg y ffprobe: (https://ffmpeg.org)
    * L-SMASH-Works (https://github.com/VFR-maniac/L-SMASH-Works)
 
-   PD: ffmpeg deberia estar en el PATH del usuario
-    
-todo: mejorar el calculo de duracion del video... terminar el argumento --autismo
+   PD: ffmpeg y ffprobe deberia estar en el PATH del usuario
 
 # ¿Cómo usar?
 
@@ -36,9 +36,10 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
     
    Python:
    
-    py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--reescribir] clip
+    py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--autismo (1,2,3,4,5)] [--reescribir] clip
 
     Todas los argumentos son opcionales, menos el clip...
+        --autismo = el nivel de "autismo" del script.
         --use-scxvid = le dice al script que use scxvid en vez de WWXD.
         --use-doble = le dice al script que use tanto scxvid como WWXD para generar el keyframe. [Recomendado]
         --out-file OUT_FILE = el archivo al que escribir los keyframes [Opcional, en caso de no especificar uno, se creara con el mismo nombre del video agregando: _keyframes.txt]
@@ -48,15 +49,14 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
      
      import keyframes as kf
 
-        kf.generate_keyframes_single(clip=clip, out_path="archivodesalida", reescribir="1")
-        kf.generate_keyframes_double(clip=clip, out_path="archivodesalida", reescribir="1")
+        kf.generate_keyframes_single(clip=clip, out_path="archivodesalida", autismo=3 reescribir=1)
+        kf.generate_keyframes_double(clip=clip, out_path="archivodesalida", autimos=3, reescribir=1)
 
   el reescribir es opcional, en caso no querer que sea reescrito, simplemente no colocarlo:
 
-        kf.generate_keyframes_single(clip=clip, out_path="archivodesalida")
-        kf.generate_keyframes_double(clip=clip, out_path="archivodesalida")
-
-
+        kf.generate_keyframes_single(clip=clip, out_path="archivodesalida", autismo=3)
+        kf.generate_keyframes_double(clip=clip, out_path="archivodesalida", autismo=3)
+        
 # QPFile
 
 El script tambien puede generar QPFiles para x264/x265
@@ -65,9 +65,26 @@ Para usarlo, se requiere vapoursynth en su totalidad...
 
     import keyframes as kf
     
-    kf.generate_qpfile_double(clip=clip, out_path="archivodesalida")
+    kf.generate_qpfile_double(clip=clip, out_path="archivodesalida", autismo=3 reescribir=1)
 
 Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile al x264/x265 para que "escriba" en el video, la información de los keyframes
+
+# Parametro de Autismo
+
+    El parametro de autismo es opcional la verdad, no es necesario colocarlo, ya que por defecto toma que el autismo es de 3...
+    Pero ¿qué significa este parametro?
+    Facil, con este parametro le decimos al script en que resolución hará el analisis...
+
+        Niveles de autismo:
+        1 = Analisis a 640x360p
+        2 = Analisis a 720x480p
+        3 = Analisis a 1280x720p
+        4 = Analisis a 1920x1080p
+        5 = Analisis a 3840x2160p
+
+    Ojo: este parametro sirve tanto en el generar keyframes como en el generar qpfile
+
+    PD: el autismo de nivel 5 está por puro meme xD
 
 # Audio
 
@@ -86,3 +103,7 @@ Siempre hay que extrearlo en su codec correspondiente, si el mediainfo muestra q
 En su mayoria, los webrip (tanto de Funimation como CR) son A_AAC [aac] en su mayoria, en cambio, Amazon y Netflix, normalmente es A_EAC3 [eac3]
 
 Ojo: también sirve para extraer los audios de los bdmv [m2ts] en pcm o wav...
+
+# ¿Cómo generar QPfiles o Keyframes desde un .bat [Windows] o .sh [Linux]?
+
+    Escribiendolo...
