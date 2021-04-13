@@ -92,15 +92,17 @@ También es posible extrear el audio de un video...
 
     import keyframes as kf
 
-    kf.extraer_audio(clip, codec)
+    kf.extraer_audio(clip, codec, out_path)
 
 Un ejemplo:
 
-    kf.extraer_audio("[SubsPlease] Tropical-Rouge! Precure - 04 (1080p) [2AE07A72].mkv", codec="aac")
+    kf.extraer_audio("[SubsPlease] Tropical-Rouge! Precure - 04 (1080p) [2AE07A72].mkv", codec="aac", out_path=r"F:/Raws/Encode/Audios/Tropical4.aac")
 
 Siempre hay que extrearlo en su codec correspondiente, si el mediainfo muestra que es A_AAC, es mejor extraerlo como aac, si muestra que es A_FLAC, es mejor extraerlo como flac y así...
 
 En su mayoria, los webrip (tanto de Funimation como CR) son A_AAC [aac] en su mayoria, en cambio, Amazon y Netflix, normalmente es A_EAC3 [eac3]
+
+En caso de no especificar un out_path, extraera el audio en la misma ubicación del video :3
 
 Ojo: también sirve para extraer los audios de los bdmv [m2ts] en pcm o wav...
 

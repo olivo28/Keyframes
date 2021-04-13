@@ -1,6 +1,5 @@
 import argparse
 import os
-import ntpath
 import subprocess
 from collections import OrderedDict
 
@@ -10,7 +9,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.7'
+__version__ = '1.7.1'
 
 
 def calcular_tiempo(clip):
@@ -62,9 +61,13 @@ def iframes(clip):
 
     return out_txt1
 
-def extraer_audio(clip, codec):
+def extraer_audio(clip, codec, out_path=None):
     
-    command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{ntpath.basename(clip)[:-4]}.{codec}"'
+    if not out_path:
+        out_path = os.path.dirname(clip) + "/" + os.path.basename(clip)[:-4] + "." + codec
+    
+    command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{out_path}"'
+    #command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{ntpath.basename(clip)[:-4]}.{codec}"'
     subprocess.check_output(command)
 
 def autista(clip, autismo):
