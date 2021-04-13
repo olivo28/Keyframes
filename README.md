@@ -71,9 +71,9 @@ Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile a
 
 # Parametro de Autismo
 
-    El parametro de autismo es opcional la verdad, no es necesario colocarlo, ya que por defecto toma que el autismo es de 3...
-    Pero ¿qué significa este parametro?
-    Facil, con este parametro le decimos al script en que resolución hará el analisis...
+   El parametro de autismo es opcional la verdad, no es necesario colocarlo, ya que por defecto toma que el autismo es de 3...
+   Pero ¿qué significa este parametro?
+   Facil, con este parametro le decimos al script en que resolución hará el analisis...
 
         Niveles de autismo:
         1 = Analisis a 640x360p
@@ -82,9 +82,9 @@ Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile a
         4 = Analisis a 1920x1080p
         5 = Analisis a 3840x2160p
 
-    Ojo: este parametro sirve tanto en el generar keyframes como en el generar qpfile
+   Ojo: este parametro sirve tanto en el generar keyframes como en el generar qpfile
 
-    PD: el autismo de nivel 5 está por puro meme xD
+   PD: el autismo de nivel 5 está por puro meme xD
 
 # Audio
 
