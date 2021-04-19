@@ -109,3 +109,36 @@ Ojo: también sirve para extraer los audios de los bdmv [m2ts] en pcm o wav...
 # ¿Cómo generar QPfiles o Keyframes desde un .bat [Windows] o .sh [Linux]?
 
     Escribiendolo...
+
+
+# CRC32
+
+Agregado un script para calcular y colocar CRC32 a tus videos...
+
+Argumentos que toma:
+
+    clip =  el video al que se le colocará/calculará el CRC32
+    --calcular_crc = Calcula el CRC32 y devuelve el CRC32 que debería tener...
+    --colocar_crc = Calcular el CRC32 y se lo coloca al archivo en cuestion...
+
+Modo de uso:
+
+    Para calcular:
+    py crc.py "video" --calcular_crc
+
+    Para colocar:
+    py crc.py "video" --colocar_crc
+
+Util para automatizar procesos como el de colocar CRC32 a un encode y subirlo a un servidor, tipo:
+
+Ejemplo en Windows [Archivo .bat]
+
+    set name=Mi video encodeado
+    set mux=[Raws] Mi video encodeado - 01.mkv
+    for /f "tokens=* usebackq" %%f in (`py crc.py "%mux%" --calcular_crc`) do (
+        set crcmux=.*%name%*.*.[%%f].*.mkv
+    )
+    py crc.py "%mux%" --colocar_crc
+    for /f "usebackq delims=" %%b in (`dir /b ^| findstr /r /c:"%crcmux%"`) do set _crcmux=%%b
+    pscp -pw contraseña -P puerto "%_crcmux%" usuario@host:"/dirección/a/la/que/subir/"
+
