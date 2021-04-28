@@ -14,6 +14,10 @@
    V1.6 - Agregada función para extrear audios de los videos... [Tip: extraerlo en el codec que es...]
 
    V1.7 - Función de "autismo" agregada, mejorado el calculo de la duración del video, mostrará el tiempo correcto dependiendo de a que framerate este...
+
+   Update 1.7.3: agregado un handler para mp4, si le pasas un .mp4 [a la hora de generaer un keyframe], usará es ffms2 ya que da error al intentar cargarlo con lsmas... 
+
+   posible bug: intentar videos en diferentes discos puede causar error, revisando
     
    Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
 
@@ -27,6 +31,7 @@
    * vapoursynth-scxvid (https://github.com/dubhater/vapoursynth-scxvid)
    * ffmpeg y ffprobe: (https://ffmpeg.org)
    * L-SMASH-Works (https://github.com/VFR-maniac/L-SMASH-Works)
+   * FFMS2 (https://github.com/FFMS/ffms2)
 
    PD: ffmpeg y ffprobe deberia estar en el PATH del usuario
 

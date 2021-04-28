@@ -1,6 +1,8 @@
 import argparse
 import os
 import subprocess
+import pathlib
+
 from collections import OrderedDict
 
 import vapoursynth as vs
@@ -9,7 +11,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.7.2'
+__version__ = '1.7.3'
 
 
 def calcular_tiempo(clip):
@@ -28,20 +30,27 @@ def calcular_tiempo(clip):
 def info_video(clip, out_path) -> None:
 
     name = clip
-    clip = core.lsmas.LWLibavSource(clip)
+    if pathlib.Path(clip).suffix == ".mp4":
+        clip1 = core.ffms2.Source(clip)
+    else:
+        clip1 = core.lsmas.LWLibavSource(clip)
 
     print(f"\nInformación del video...\nVideo: {name}", \
-        f"\nResolución: {clip.width}x{clip.height}p", \
-        f"\nCantidad de frames: {clip.num_frames}", \
-        f"- Duración: {calcular_tiempo(clip)}", \
-        f"\nFramerate: {clip.fps}", \
-        f"\nFormato: {clip.format.name}", \
+        f"\nResolución: {clip1.width}x{clip1.height}p", \
+        f"\nCantidad de frames: {clip1.num_frames}", \
+        f"- Duración: {calcular_tiempo(clip1)}", \
+        f"\nFramerate: {clip1.fps}", \
+        f"\nFormato: {clip1.format.name}", \
         f"\nArchivo de Keyframes: {out_path}\n")
 
 def frame_total(clip):
 
-    if not type(clip) is vs.VideoNode:
-        clip = core.lsmas.LWLibavSource(clip)
+    if not isinstance(clip, vs.VideoNode):
+        if pathlib.Path(clip).suffix == ".mp4":
+            clip = core.ffms2.Source(clip)
+        else:
+            clip = core.lsmas.LWLibavSource(clip)
+        
 
     frames = clip.num_frames
 
@@ -90,8 +99,11 @@ def keyframe_simple(clip, out_path, autismo, use_scxvid=None) -> None:
     out_txt = "# keyframe format v1\nfps 0\n"
     out_txt3 = ""
 
-    if not type(clip) is vs.VideoNode:
-        clip1 = core.lsmas.LWLibavSource(clip)
+    if not isinstance(clip, vs.VideoNode):
+        if pathlib.Path(clip).suffix == ".mp4":
+            clip1 = core.ffms2.Source(clip)
+        else:
+            clip1 = core.lsmas.LWLibavSource(clip)
     else:
         clip1 = clip
 
@@ -143,8 +155,11 @@ def doble(clip, out_path, autismo, qp_file=None) -> None:
 
     out_txt3 = ""
 
-    if not type(clip) is vs.VideoNode:
-        clip1 = core.lsmas.LWLibavSource(clip)
+    if not isinstance(clip, vs.VideoNode):
+        if pathlib.Path(clip).suffix == ".mp4":
+            clip1 = core.ffms2.Source(clip)
+        else:
+            clip1 = core.lsmas.LWLibavSource(clip)
     else:
         clip1 = clip
 
@@ -250,6 +265,9 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
     if not autismo:
         autismo = int(3)
 
+    if not isinstance(clip, vs.VideoNode):
+        raise TypeError("El clip no es una instancia tipo VideoNode.")
+
     if os.path.isfile(out_path) == 1:
         if not reescribir:
             print("Generando QPFile...")
@@ -285,6 +303,11 @@ def main():
 
     try:
         os.remove(f"{args.clip}.lwi")
+    except FileNotFoundError:
+        pass
+
+    try:
+        os.remove(f"{args.clip}.ffindex")
     except FileNotFoundError:
         pass
 
