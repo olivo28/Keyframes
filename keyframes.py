@@ -11,7 +11,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.7.3'
+__version__ = '1.7.4'
 
 
 def calcular_tiempo(clip):
@@ -72,11 +72,17 @@ def iframes(clip):
 
 def extraer_audio(clip, codec, out_path=None):
     
-    if not out_path:
-        out_path = os.path.basename(clip)[:-4] + "." + codec
+    if pathlib.Path(clip).suffix == ".m2ts":
+        if not out_path:
+            out_path = os.path.basename(clip)[:-5] + "." + codec
+        else:
+            out_path = os.path.basename(clip)[:-4] + "." + codec
     
-    command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{out_path}"'
-    #command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{ntpath.basename(clip)[:-4]}.{codec}"'
+    if pathlib.Path(clip).suffix == ".m2ts":
+        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:1 -acodec pcm_s24le "{out_path}"'
+    else:
+        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{out_path}"'
+
     subprocess.check_output(command)
 
 def autista(clip, autismo):

@@ -30,6 +30,8 @@
 
    Update 1.7.3: agregado un handler para mp4, si le pasas un .mp4 [a la hora de generaer un keyframe], usará es ffms2 ya que da error al intentar cargarlo con lsmas... 
 
+   Update 1.7.4: agregado un handler para m2ts a la hora de extrar audios en formato .wav [lo mas recomendado]
+
    posible bug: intentar videos en diferentes discos puede causar error, revisando
     
    Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
