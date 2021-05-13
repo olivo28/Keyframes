@@ -77,6 +77,11 @@ def extraer_audio(clip, codec, out_path=None):
             out_path = os.path.basename(clip)[:-5] + "." + codec
         else:
             out_path = os.path.basename(clip)[:-4] + "." + codec
+    else:
+        if not out_path:
+            out_path = os.path.basename(clip)[:-4] + "." + codec
+        else:
+            out_path = os.path.basename(clip)[:-4] + "." + codec
     
     if pathlib.Path(clip).suffix == ".m2ts":
         command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:1 -acodec pcm_s24le "{out_path}"'
