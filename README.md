@@ -60,7 +60,7 @@ Usandolo como modulo de Vapoursynth:
 ```py
     import keyframes as kf
 
-    kf.generate_keyframes_single(clip=clip, out_path="archivodesalida", autismo=3 reescribir=1)
+    kf.generate_keyframes_single(clip=clip, out_path="archivodesalida", autismo=3, reescribir=1)
     kf.generate_keyframes_double(clip=clip, out_path="archivodesalida", autimos=3, reescribir=1)
 ```
 
