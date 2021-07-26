@@ -11,7 +11,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.7.4'
+__version__ = '1.7.5'
 
 
 def calcular_tiempo(clip):
@@ -76,12 +76,12 @@ def extraer_audio(clip, codec, out_path=None):
         if not out_path:
             out_path = os.path.basename(clip)[:-5] + "." + codec
         else:
-            out_path = os.path.basename(clip)[:-4] + "." + codec
+            out_path = out_path
     else:
         if not out_path:
             out_path = os.path.basename(clip)[:-4] + "." + codec
         else:
-            out_path = os.path.basename(clip)[:-4] + "." + codec
+            out_path = out_path
     
     if pathlib.Path(clip).suffix == ".m2ts":
         command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:1 -acodec pcm_s24le "{out_path}"'
