@@ -2,6 +2,7 @@ import argparse
 import os
 import subprocess
 import pathlib
+import glob
 
 from collections import OrderedDict
 
@@ -11,7 +12,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.7.5'
+__version__ = '1.7.6'
 
 
 def calcular_tiempo(clip):
@@ -157,6 +158,8 @@ def keyframe_simple(clip, out_path, autismo, use_scxvid=None) -> None:
     text_file.write(out_txt)
     text_file.close()
 
+    return
+
 def doble(clip, out_path, autismo, qp_file=None) -> None:
 
     if not qp_file:
@@ -217,6 +220,8 @@ def doble(clip, out_path, autismo, qp_file=None) -> None:
         text_file = open(out_path, "w")
         text_file.write(out_txt)
         text_file.close()
+    
+    return
 
 
 
@@ -246,6 +251,7 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
         else:
             keyframe_simple(clip, out_path, autismo)
 
+    return
 
 def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None) -> None: ## aun ando pensandola xD
 
@@ -266,6 +272,8 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None
             doble(clip, out_path, autismo)
     else:
         doble(clip, out_path, autismo)
+    
+    return
 
 
 def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -> None:
@@ -287,6 +295,8 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
             doble(clip, out_path, autismo, qp_file=1)
     else:
         doble(clip, out_path, autismo, qp_file=1)
+    
+    return
 
 def main():
 
@@ -312,15 +322,22 @@ def main():
         else:
             generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.use_scxvid)
 
-    try:
-        os.remove(f"{args.clip}.lwi")
-    except FileNotFoundError:
-        pass
 
-    try:
-        os.remove(f"{args.clip}.ffindex")
-    except FileNotFoundError:
-        pass
+    lwi = glob.glob('*.lwi')
+    for file in lwi:
+        try:
+            os.remove(file)
+        except:
+            print("Error al remover: ", file)
+    
+
+    ffindex = glob.glob('*.ffindex')
+    for file in ffindex:
+        try:
+            os.remove(file)
+        except:
+            print("Error al remover: ", file)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
