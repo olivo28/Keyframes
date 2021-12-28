@@ -12,8 +12,27 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.7.6'
+__version__ = '1.8'
 
+def borrar_archivos():
+
+    print("Borrando archivos intermedios...")
+
+    lwi = glob.glob('*.lwi')
+    for file in lwi:
+        try:
+            os.remove(file)
+        except:
+            print("Error al remover: ", file)
+
+    ffindex = glob.glob('*.ffindex')
+    for file in ffindex:
+        try:
+            os.remove(file)
+        except:
+            print("Error al remover: ", file)
+    
+    return
 
 def calcular_tiempo(clip):
 
@@ -251,6 +270,8 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
         else:
             keyframe_simple(clip, out_path, autismo)
 
+    borrar_archivos()
+
     return
 
 def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None) -> None: ## aun ando pensandola xD
@@ -272,6 +293,8 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None
             doble(clip, out_path, autismo)
     else:
         doble(clip, out_path, autismo)
+
+    borrar_archivos()
     
     return
 
@@ -295,6 +318,8 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
             doble(clip, out_path, autismo, qp_file=1)
     else:
         doble(clip, out_path, autismo, qp_file=1)
+
+    borrar_archivos()
     
     return
 
@@ -322,22 +347,7 @@ def main():
         else:
             generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.use_scxvid)
 
-
-    lwi = glob.glob('*.lwi')
-    for file in lwi:
-        try:
-            os.remove(file)
-        except:
-            print("Error al remover: ", file)
-    
-
-    ffindex = glob.glob('*.ffindex')
-    for file in ffindex:
-        try:
-            os.remove(file)
-        except:
-            print("Error al remover: ", file)
-
+    borrar_archivos()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
