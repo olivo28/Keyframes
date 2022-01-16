@@ -215,7 +215,6 @@ def doble(clip, out_path, autismo, analize, qp_file=None) -> None:
             clip1 = core.ffms2.Source(clip)
         else:
             clip1 = core.lsmas.LWLibavSource(clip)
-            clip1 = clip1[0:200]
     else:
         clip1 = clip
 
