@@ -12,7 +12,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.8'
+__version__ = '1.9'
 
 def borrar_archivos():
 
@@ -55,12 +55,17 @@ def info_video(clip, out_path) -> None:
     else:
         clip1 = core.lsmas.LWLibavSource(clip)
 
+    command = f'ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
+    codec = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    codec1 = codec.decode('utf-8').rstrip('\r\n')
+
     print(f"\nInformación del video...\nVideo: {name}", \
         f"\nResolución: {clip1.width}x{clip1.height}p", \
         f"\nCantidad de frames: {clip1.num_frames}", \
         f"- Duración: {calcular_tiempo(clip1)}", \
         f"\nFramerate: {clip1.fps}", \
         f"\nFormato: {clip1.format.name}", \
+        f"\nCodec: {codec1}", \
         f"\nArchivo de Keyframes: {out_path}\n")
 
 def frame_total(clip):
@@ -90,23 +95,30 @@ def iframes(clip):
 
     return out_txt1
 
-def extraer_audio(clip, codec, out_path=None):
+def extraer_audio(clip, stream, out_path=None):
+
+    command = f'ffprobe -v error -select_streams a:{stream} -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
+    codec = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    codec1 = codec.decode('utf-8').rstrip('\r\n')
+
+    stream1 = stream + 1
     
     if pathlib.Path(clip).suffix == ".m2ts":
+        codec = "wav"
         if not out_path:
-            out_path = os.path.basename(clip)[:-5] + "." + codec
+            out_path = os.path.basename(clip)[:-5] + "audio_0" + {stream1} + "." + codec
         else:
-            out_path = out_path
+            out_path = f'{out_path}\{os.path.basename(clip)[:-5]}audio_0{stream1}.{codec}'
     else:
         if not out_path:
-            out_path = os.path.basename(clip)[:-4] + "." + codec
+            out_path = os.path.basename(clip)[:-4] + "audio_0" + {stream1} + + "." + {codec1}
         else:
-            out_path = out_path
+            out_path = f'{out_path}\{os.path.basename(clip)[:-4]}audio_0{stream1}.{codec1}'
     
     if pathlib.Path(clip).suffix == ".m2ts":
-        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:1 -acodec pcm_s24le "{out_path}"'
+        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec pcm_s24le "{out_path}"'
     else:
-        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -vn -acodec copy "{out_path}"'
+        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec copy "{out_path}"'
 
     subprocess.check_output(command)
 
@@ -125,11 +137,29 @@ def autista(clip, autismo):
 
     return clip1
 
-def keyframe_simple(clip, out_path, autismo, use_scxvid=None) -> None:
+def key264(clip, out_txt3):
+  
+    print("Analizando Keyframes generados por x264...")
+
+    out_txt1 = iframes(clip)
+    out_txt1 = out_txt1.splitlines()
+
+    print("Comparando, eliminando y uniendo keyframes...")
+
+    out_txt3 = out_txt3.splitlines()
+    out_txt2 = out_txt3 + out_txt1
+    out_txt2 = list(OrderedDict.fromkeys(out_txt2))
+    out_txt2 = sorted(out_txt2, key=int)
+    out_txt2 = '\n'.join(out_txt2)
+
+    return out_txt2
+
+
+def keyframe_simple(clip, out_path, autismo, analize, use_scxvid=None) -> None:
 
     out_txt = "# keyframe format v1\nfps 0\n"
     out_txt3 = ""
-
+    
     if not isinstance(clip, vs.VideoNode):
         if pathlib.Path(clip).suffix == ".mp4":
             clip1 = core.ffms2.Source(clip)
@@ -159,18 +189,10 @@ def keyframe_simple(clip, out_path, autismo, use_scxvid=None) -> None:
 
     print("\n")
 
-    print("Analizando Keyframes generados por x264...")
-
-    out_txt1 = iframes(clip)
-    out_txt1 = out_txt1.splitlines()
-
-    print("Comparando, eliminando y uniendo keyframes...")
-
-    out_txt3 = out_txt3.splitlines()
-    out_txt2 = out_txt3 + out_txt1
-    out_txt2 = list(OrderedDict.fromkeys(out_txt2))
-    out_txt2 = sorted(out_txt2, key=int)
-    out_txt2 = '\n'.join(out_txt2)
+    if analize == 0:
+        out_txt2 = out_txt3
+    else:
+        out_txt2 = key264(clip, out_txt3)
     out_txt += out_txt2
 
     text_file = open(out_path, "w")
@@ -179,7 +201,7 @@ def keyframe_simple(clip, out_path, autismo, use_scxvid=None) -> None:
 
     return
 
-def doble(clip, out_path, autismo, qp_file=None) -> None:
+def doble(clip, out_path, autismo, analize, qp_file=None) -> None:
 
     if not qp_file:
         out_txt = "# keyframe format v1\nfps 0\n"
@@ -193,6 +215,7 @@ def doble(clip, out_path, autismo, qp_file=None) -> None:
             clip1 = core.ffms2.Source(clip)
         else:
             clip1 = core.lsmas.LWLibavSource(clip)
+            clip1 = clip1[0:200]
     else:
         clip1 = clip
 
@@ -217,19 +240,10 @@ def doble(clip, out_path, autismo, qp_file=None) -> None:
     print("\n")
 
     if not qp_file:
-
-        print("Analizando Keyframes generados por x264...")
-
-        out_txt1 = iframes(clip)
-        out_txt1 = out_txt1.splitlines()
-
-        print("Comparando, eliminando y uniendo keyframes...")
-
-        out_txt3 = out_txt3.splitlines()
-        out_txt2 = out_txt3 + out_txt1
-        out_txt2 = list(OrderedDict.fromkeys(out_txt2))
-        out_txt2 = sorted(out_txt2, key=int)
-        out_txt2 = '\n'.join(out_txt2)
+        if analize == 0:
+            out_txt2 = out_txt3
+        else:
+            out_txt2 = key264(clip, out_txt3)
         out_txt += out_txt2 
 
         text_file = open(out_path, "w")
@@ -244,7 +258,7 @@ def doble(clip, out_path, autismo, qp_file=None) -> None:
 
 
 
-def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None, use_scxvid=None) -> None:
+def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None, use_scxvid=None, analize=None) -> None:
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
@@ -255,26 +269,31 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
     if not autismo:
         autismo = int(3)
 
+    if not analize:
+        analize = int(0)
+    else:
+        analize = int(1)
+
     if os.path.isfile(out_path) == 1:
         if not reescribir:
             print("Generando keyframes...")
             print("Ya existe el archivo...\nSaltando proceso.")            
         else:
             if use_scxvid:
-                keyframe_simple(clip, out_path, autismo, use_scxvid)
+                keyframe_simple(clip, out_path, autismo, analize, use_scxvid, )
             else:
-                keyframe_simple(clip, out_path, autismo)    
+                keyframe_simple(clip, out_path, autismo, analize)    
     else:
         if use_scxvid:
-            keyframe_simple(clip, out_path, autismo, use_scxvid)
+            keyframe_simple(clip, out_path, autismo, analize, use_scxvid)
         else:
-            keyframe_simple(clip, out_path, autismo)
+            keyframe_simple(clip, out_path, autismo, analize)
 
     borrar_archivos()
 
     return
 
-def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None) -> None: ## aun ando pensandola xD
+def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None, analize=None) -> None: ## aun ando pensandola xD
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
@@ -285,14 +304,19 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None
     if not autismo:
         autismo = int(3)
     
+    if not analize:
+        analize = int(0)
+    else:
+        analize = int(1)
+    
     if os.path.isfile(out_path) == 1:
         if not reescribir:
             print("Generando keyframes...")
             print("Ya existe el archivo...\nSaltando proceso.")
         else:
-            doble(clip, out_path, autismo)
+            doble(clip, out_path, autismo, analize)
     else:
-        doble(clip, out_path, autismo)
+        doble(clip, out_path, autismo, analize)
 
     borrar_archivos()
     
@@ -307,6 +331,8 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
     if not autismo:
         autismo = int(3)
 
+    analize = int(0)
+
     if not isinstance(clip, vs.VideoNode):
         raise TypeError("El clip no es una instancia tipo VideoNode.")
 
@@ -315,9 +341,9 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
             print("Generando QPFile...")
             print("Ya existe el archivo...\nSaltando proceso.")
         else:
-            doble(clip, out_path, autismo, qp_file=1)
+            doble(clip, out_path, autismo, analize, qp_file=1)
     else:
-        doble(clip, out_path, autismo, qp_file=1)
+        doble(clip, out_path, autismo, analize, qp_file=1)
 
     borrar_archivos()
     
@@ -332,31 +358,35 @@ def main():
     if not args.autismo:
         args.autismo = int(3)
 
+    if not args.analize:
+        args.autismo = int(0)
+
     clip = args.clip
+
 
     if not args.out_file:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
     else:
-        out_path = args.out_file
+        out_path = args.out_file    
 
     if args.use_doble:
-        generate_keyframes_double(clip, out_path, args.autismo, args.reescribir)
+        generate_keyframes_double(clip, out_path, args.autismo, args.reescribir, args.analize)
     else:
         if not args.use_scxvid:
-            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir)
+            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.analize)
         else:
-            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.use_scxvid)
-
-    borrar_archivos()
+            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.use_scxvid, args.analize)
+            
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--autismo', help="el modo a usar para hacer el keyframe... por defecto 1, hasta 4, a mayor el numero de modo, mayor detección de escenas, pero más tiempo de procesado. Valor por defecto: 3")
-    parser.add_argument('--use-scxvid', action='store_true', help="usar Scxvid en vez de WWXD para detectar cambios de escena (por defecto usa WWXD.")
-    parser.add_argument('--use-doble', action='store_true', help="Usar tanto scxvid como WWXD para detectar los cambios de escenas y luego unirlos (aumenta considerablemente el tiempo de procesamiento). ")
+    parser.add_argument('--autismo', help="el modo a usar para hacer el keyframe... de 1 hasta 4, a mayor el numero de modo, mayor detección de escenas, pero más tiempo de procesado. Valor por defecto: 3")
+    parser.add_argument('--use-scxvid', action='store_true', help="Usar Scxvid en vez de WWXD para detectar cambios de escena (por defecto usa WWXD.")
+    parser.add_argument('--use-doble', action='store_true', help="Usar tanto scxvid como WWXD para detectar los cambios de escenas y luego unirlos (aumenta considerablemente el tiempo de procesamiento).")
     parser.add_argument('--out-file', help="el archivo al que escribir el cambio de escenas en el formato de Aegisub; por defecto a '_keyframes.txt' en el mismo directorio que se encuentra el video.")
     parser.add_argument('--reescribir', action='store_true', help="habilita reescribir el archivo en caso de que exista...")
-    parser.add_argument('clip', help="el video al que hacer el keyframe.")
+    parser.add_argument('--analize', action='store_true', help="deshabilita el uso de ffprobe para analizar los I-Frames generados por x264/x265.")
+    parser.add_argument('clip', help="el video al que generarle el keyframe.")
     args = parser.parse_args()
     main()
     

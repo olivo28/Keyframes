@@ -12,31 +12,14 @@
    PD: ffmpeg y ffprobe deberia estar en el PATH del usuario
 
 # Keyframes
- Script para generar Keyframes [Standalone] y QPFiles [Vapoursynth] escritos en Python
 
-   V1.1 - Refactorizado de todo el codigo, agregadas algunas funciones
+Script para generar Keyframes [Standalone] y QPFiles [Vapoursynth] escritos en Python
 
-   V1.2 - Funcion para usar tanto scxvid como WWXD para generar el keyframe
-    
-   V1.3 - Funcion para crear qpfile, mejorada la escritura de keyframes, tambien funciona sin problemas como un filtro extra de Vapoursynth
+    V1.9 - Mejorado el extractor de audio, analizador de videos y generación de keyframes...
 
-   V1.4 - Vuelto a refactorizar el codigo para que sea mas entendible y menos repetitivo...
+Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
 
-   V1.5 - Agregada funcion que revisa los keyframes generados por x264, para luego compararlos y agregar las diferencias al keyframe generado con scxvid, wwxd o ambos...
-
-   V1.6 - Agregada función para extrear audios de los videos... [Tip: extraerlo en el codec que es...]
-
-   V1.7 - Función de "autismo" agregada, mejorado el calculo de la duración del video, mostrará el tiempo correcto dependiendo de a que framerate este...
-
-   Update 1.7.3: agregado un handler para mp4, si le pasas un .mp4 [a la hora de generaer un keyframe], usará es ffms2 ya que da error al intentar cargarlo con lsmas... 
-
-   Update 1.7.4: agregado un handler para m2ts a la hora de extrar audios en formato .wav [lo mas recomendado]
-
-   posible bug: intentar videos en diferentes discos puede causar error, revisando
-    
-   Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
-
-   Script original editado fuertemente para mostrar más datos, eliminada la funcion de slices, que producia peor resultado a cambio de una mayor velocidad de procesado
+Script original editado fuertemente para mostrar más datos, eliminada la funcion de slices, que producia peor resultado a cambio de una mayor velocidad de procesado
 
 # ¿Cómo usar?
 
@@ -45,7 +28,7 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
    Python:
    
 ```py
-    py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--autismo (1,2,3,4,5)] [--reescribir] clip
+    py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--autismo (1,2,3,4,5)] [--reescribir] [--analize] clip
 ```
 
 Todas los argumentos son opcionales, menos el clip...
@@ -55,6 +38,9 @@ Todas los argumentos son opcionales, menos el clip...
         --use-doble = le dice al script que use tanto scxvid como WWXD para generar el keyframe. [Recomendado]
         --out-file OUT_FILE = el archivo al que escribir los keyframes [Opcional, en caso de no especificar uno, se creara con el mismo nombre del video agregando: _keyframes.txt]
         --reescribir = Por defecto, el script comprueba si existe o no el archivo, en caso de existir, el proceso se salta... con la opcion, dicho archivo es reescrito.
+        --analize = deshabilita el uso de ffprobe para analizar los I-Frames generados por x264/x265. 
+
+--analize está por defecto desactivado, en caso de querer analizar los I-Frames generados por un encode actual, colocarlo.
 
 Usandolo como modulo de Vapoursynth:
 ```py
@@ -80,7 +66,7 @@ Para usarlo, se requiere vapoursynth en su totalidad...
 ```py
     import keyframes as kf
 
-    kf.generate_qpfile_double(clip=clip, out_path="archivodesalida", autismo=3 reescribir=1)
+    kf.generate_qpfile_double(clip=clip, out_path="archivodesalida", autismo=3, reescribir=1)
 ```
 
 Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile al x264/x265 para que "escriba" en el video, la información de los keyframes
@@ -111,26 +97,57 @@ También es posible extrear el audio de un video...
 ```py
     import keyframes as kf
 
-    kf.extraer_audio(clip, codec, out_path)
+    kf.extraer_audio(clip, stream, out_path)
 ```
 
 Un ejemplo:
 ```py
-    kf.extraer_audio("[SubsPlease] Tropical-Rouge! Precure - 04 (1080p) [2AE07A72].mkv", codec="aac", out_path=r"F:/Raws/Encode/Audios/Tropical4.aac")
+    kf.extraer_audio("[SubsPlease] Tropical-Rouge! Precure - 04 (1080p) [2AE07A72].mkv", stream=0, out_path=r"F:/Raws/Encode/Audios/")
 ```
 
-Siempre hay que extrearlo en su codec correspondiente, si el mediainfo muestra que es A_AAC, es mejor extraerlo como aac, si muestra que es A_FLAC, es mejor extraerlo como flac y así...
+El script analiza el codec correspondiente del stream para extraerlo en su codec...
 
-En su mayoria, los webrip (tanto de Funimation como CR) son A_AAC [aac] en su mayoria, en cambio, Amazon y Netflix, normalmente es A_EAC3 [eac3]
+El stream 0 corresponde al primer audio, el stream 1 al segundo audio y asi sucesivamente...
 
-En caso de no especificar un out_path, extraera el audio en la misma ubicación del video :3
-
-Ojo: también sirve para extraer los audios de los bdmv [m2ts] en pcm o wav...
+El out_path es en qué carpeta quieres que se extraiga, sino se coloca, lo hara en donde está ubicado el .vpy
 
 # ¿Cómo generar QPfiles o Keyframes desde un .bat [Windows] o .sh [Linux]?
 
-    Escribiendolo...
+[Windows]
 
+Crea un archivo llamado keyframe.bat que contenga lo siguiente:
+
+    py "ubicacion/del/keyframes.py" --use-doble %1 --out-file "%~n1_keyframe.log" --autismo 3
+
+Guardalo en cualquiera parte de tu computadora y colocalo en tus Variables de entorno...
+
+Solo te toca abrir tu CMD/PowerShell, navegar hasta la carpeta donde tienes tu video y escribir:
+
+    keyframe "elvideoencuestion.mkv"
+
+Se empezará a crear los keyframes de dicho video.
+
+[Linux]
+
+Crea un archivo llamado keyframe.sh que contenga lo siguiente:
+
+    #!/usr/bin/env python
+    py "ubicacion/del/keyframes.py" --use-doble %1 --out-file "%~n1_keyframe.log" --autismo 3
+
+Guardalo en /home/usuario/.local/bin, agregar la carpeta a el .bashrc
+
+Solo te toca abrir tu terminal favorita, navegar hasta la carpeta y escribir
+
+    keyframe "elvideoencuestion.mkv"
+
+Se empezará a crear los keyframes de dicho video.
+
+
+~~~~~~~~~~~~~~~
+
+Puedes completar los argumentos del keyframe.bat/keyframe.sh con los que necesites, asi es generar los keyframes simples de algun webrip con todo por defecto.
+
+~~~~~~~~~~~~~~~
 
 # CRC32
 
