@@ -11,11 +11,23 @@
 
    PD: ffmpeg y ffprobe deberia estar en el PATH del usuario
 
+# Comprobar dependecias
+
+Se agrego una opción para comprobar si todas las dependencias se encuentra, para esto, escribir en tu consola:
+
+    py "ubicacion/del/keyframes.py" --check
+
+ejemplo:
+
+    py keyframes.py --check
+
+Lo que hará es saltarse todo el proceso
+
 # Keyframes
 
 Script para generar Keyframes [Standalone] y QPFiles [Vapoursynth] escritos en Python
 
-    V1.9 - Mejorado el extractor de audio, analizador de videos y generación de keyframes...
+    V2 - Agregado un comprobador para ver si se encuentran todas las dependencias, ahora es necesario agregar --clip para especificar el clip
 
 Script mejorado para gener keyframes de un video basado en el keyframes.py (https://pastebin.com/cUwStpfw)
 
@@ -79,16 +91,19 @@ Recomendado para cuando se vaya a encodear un video, pasarle el archivo qpfile a
 
 Niveles de autismo:
 ```py
+    0 = El analisis se hace a la resolucion actual del video. (Usado mas que todo para resoluciones amorfas, fuera del estandar)
     1 = Analisis a 640x360p
     2 = Analisis a 720x480p
     3 = Analisis a 1280x720p
-    4 = Analisis a 1920x1080p
-    5 = Analisis a 3840x2160p
+    4 = Analisis a 1440x810p
+    5 = Analisis a 1600x900p
+    6 = Analisis a 1920x1080p
+    7 = Analisis a 3840x2160p
 ```
 
    Ojo: este parametro sirve tanto en el generar keyframes como en el generar qpfile
 
-   PD: el autismo de nivel 5 está por puro meme xD
+   PD: el autismo de nivel 7 está por puro meme xD
 
 # Audio
 
@@ -117,7 +132,7 @@ El out_path es en qué carpeta quieres que se extraiga, sino se coloca, lo hara 
 
 Crea un archivo llamado keyframe.bat que contenga lo siguiente:
 
-    py "ubicacion/del/keyframes.py" --use-doble %1 --out-file "%~n1_keyframe.log" --autismo 3
+    py "ubicacion/del/keyframes.py" --clip %1 --use-doble --out-file "%~n1_keyframe.log" --autismo 3
 
 Guardalo en cualquiera parte de tu computadora y colocalo en tus Variables de entorno...
 
@@ -127,12 +142,22 @@ Solo te toca abrir tu CMD/PowerShell, navegar hasta la carpeta donde tienes tu v
 
 Se empezará a crear los keyframes de dicho video.
 
+También es posible a través de la opción de "Enviar a" de Windows... para eso, se creaciaria un .bat nuevo que estaría en: [shell:sendto]
+
+    @echo off
+
+    for %%I in (%*) do (
+    py "ubicacion/del/keyframes.py" --clip "%%I" --use-doble --out-file "%%~nI_keyframe.log" --autismo 3
+    )
+
+
+
 [Linux]
 
 Crea un archivo llamado keyframe.sh que contenga lo siguiente:
 
     #!/usr/bin/env python
-    py "ubicacion/del/keyframes.py" --use-doble %1 --out-file "%~n1_keyframe.log" --autismo 3
+    py "ubicacion/del/keyframes.py" --clip %1 --use-doble --out-file "%~n1_keyframe.log" --autismo 3
 
 Guardalo en /home/usuario/.local/bin, agregar la carpeta a el .bashrc
 

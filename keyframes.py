@@ -3,6 +3,7 @@ import os
 import subprocess
 import pathlib
 import glob
+import platform    
 
 from collections import OrderedDict
 
@@ -12,7 +13,51 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '1.9'
+__version__ = '2'
+
+def comprobrar():
+
+    system = platform.system()
+    programs = ['ffmpeg', 'ffprobe', 'python']
+
+    print("\nComprobando que se encuentren ciertos programas en el PATH...\n")
+
+    if system == 'Windows':
+        for program in programs:
+            try:
+                subprocess.run(['where', program], check=True)
+                print(f"{program} encontrado en el PATH en Windows")
+            except subprocess.CalledProcessError:
+                print(f"{program} no encontrado en el PATH en Windows")
+
+    elif system == 'Linux' or system == 'Darwin':
+        for program in programs:
+            try:
+                subprocess.run(['which', program], check=True)
+                print(f"{program} encontrado en el PATH en {system}")
+            except subprocess.CalledProcessError:
+                print(f"{program} no encontrado en el PATH en {system}")
+
+    else:
+        print(f"Sistema operativo {system} no soportado")
+
+    vs_modules = ['wwxd', 'scxvid', 'ffms2', 'fmtc', 'resize', 'lsmas']
+
+    print("\nComprobando que se encuentren ciertos modulos de Vapoursynth instalados...\n")
+
+
+    try:
+        vs_api = vs.core
+        print("Vapoursynth está instalado")
+
+        for module in vs_modules:
+            try:
+                getattr(vs_api, module)
+                print(f"{module} está instalado")
+            except AttributeError:
+                print(f"{module} no está instalado")
+    except vs.error.VSError:
+        print("Vapoursynth no está instalado")
 
 def borrar_archivos():
 
@@ -124,6 +169,8 @@ def extraer_audio(clip, stream, out_path=None):
 
 def autista(clip, autismo):
 
+    if int(autismo) == int(0):
+        clip1 = clip
     if int(autismo) == int(1):
         clip1 = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)
     if int(autismo) == int(2):
@@ -131,14 +178,18 @@ def autista(clip, autismo):
     if int(autismo) == int(3): #por defecto
         clip1 = core.resize.Bilinear(clip, 1280, 720, format=vs.YUV420P8)
     if int(autismo) == int(4):
+        clip1 = core.resize.Bilinear(clip, 1440, 810, format=vs.YUV420P8)
+    if int(autismo) == int(5):
+        clip1 = core.resize.Bilinear(clip, 1600, 900, format=vs.YUV420P8)
+    if int(autismo) == int(6):
         clip1 = core.resize.Bilinear(clip, 1920, 1080, format=vs.YUV420P8)
-    if int(autismo) == int(5): #en serio... puro autismo
+    if int(autismo) == int(7): #en serio... puro autismo
         clip1 = core.resize.Bilinear(clip, 3840, 2160, format=vs.YUV420P8)
 
     return clip1
 
 def key264(clip, out_txt3):
-  
+
     print("Analizando Keyframes generados por x264...")
 
     out_txt1 = iframes(clip)
@@ -350,18 +401,21 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
 
 def main():
 
-    if not args.clip:
-        print("¡No haz colocado ningún video al cual sacarle el keyframe!")
+    if args.check:
+        comprobrar()
         return
+
+    if not args.clip and not args.check:
+        print("¡No has colocado ningún video al cual sacarle el keyframe!")
+        return
+    
+    clip = args.clip if not args.check else None
 
     if not args.autismo:
         args.autismo = int(3)
 
     if not args.analize:
         args.autismo = int(0)
-
-    clip = args.clip
-
 
     if not args.out_file:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
@@ -385,7 +439,8 @@ if __name__ == "__main__":
     parser.add_argument('--out-file', help="el archivo al que escribir el cambio de escenas en el formato de Aegisub; por defecto a '_keyframes.txt' en el mismo directorio que se encuentra el video.")
     parser.add_argument('--reescribir', action='store_true', help="habilita reescribir el archivo en caso de que exista...")
     parser.add_argument('--analize', action='store_true', help="deshabilita el uso de ffprobe para analizar los I-Frames generados por x264/x265.")
-    parser.add_argument('clip', help="el video al que generarle el keyframe.")
+    parser.add_argument('--check',  action='store_true', help="comprueba si están presentes todas las dependencia.s")
+    parser.add_argument('--clip', help="el video al que generarle el keyframe.")
     args = parser.parse_args()
     main()
     
