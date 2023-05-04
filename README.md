@@ -23,6 +23,25 @@ ejemplo:
 
 Lo que hará es saltarse todo el proceso y comprbara sí se encuentran todas las dependencias en el sistema
 
+# Archivos extras
+
+Se agregaron 5 archivos nuevos, 3 unicamente para Windows y 2 para Linux
+
+[Windows]
+
+keybatch.bat sirve para crear keyframes en batch de toda una carpeta
+keysendto.bat es para usarlo seleccionando los diferentes archivos en usar la opción de "Enviar a" de Windows
+keyframes.bat es el archivo normal que se coloca en tu variable de entorno y usar por cmd
+
+PD: para que las opciones de sendto y batch funcionen, keyframes debe estár sí o sí en tu variable de entorno
+
+[Linux]
+
+keyframes.sh es el archivo base normal para usar en tu terminal, este debe ir en  /home/usuario/.local/bin y agregar la carpeta al .bashrc
+keybatch.sh lo mismo que la version de windows, pero para Linux
+
+PD: keybatch requiere sí o sí que keyframes funcione sin problemas desde cualquier ubicacion
+
 # Keyframes
 
 Script para generar Keyframes [Standalone] y QPFiles [Vapoursynth] escritos en Python
@@ -40,7 +59,7 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
    Python:
    
 ```py
-    py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--autismo (1,2,3,4,5)] [--reescribir] [--analize] clip
+    py keyframes.py [--use-scxvid] [--use-doble] [--out-file OUT_FILE] [--autismo (0,1,2,3,4,5,6,7)] [--reescribir] [--analize] [--clip] [--check]
 ```
 
 Todas los argumentos son opcionales, menos el clip...
@@ -51,6 +70,7 @@ Todas los argumentos son opcionales, menos el clip...
         --out-file OUT_FILE = el archivo al que escribir los keyframes [Opcional, en caso de no especificar uno, se creara con el mismo nombre del video agregando: _keyframes.txt]
         --reescribir = Por defecto, el script comprueba si existe o no el archivo, en caso de existir, el proceso se salta... con la opcion, dicho archivo es reescrito.
         --analize = deshabilita el uso de ffprobe para analizar los I-Frames generados por x264/x265. 
+        --clip = el video al que generarle el keyframe
 
 --analize está por defecto desactivado, en caso de querer analizar los I-Frames generados por un encode actual, colocarlo.
 
@@ -142,14 +162,13 @@ Solo te toca abrir tu CMD/PowerShell, navegar hasta la carpeta donde tienes tu v
 
 Se empezará a crear los keyframes de dicho video.
 
-También es posible a través de la opción de "Enviar a" de Windows... para eso, se creaciaria un .bat nuevo que estaría en: [shell:sendto]
+También es posible a través de la opción de "Enviar a" de Windows... para eso, se creaciaria un .bat nuevo que estaría en: shell:sendto
 
     @echo off
 
     for %%I in (%*) do (
     py "ubicacion/del/keyframes.py" --clip "%%I" --use-doble --out-file "%%~nI_keyframe.log" --autismo 3
     )
-
 
 
 [Linux]
@@ -167,12 +186,7 @@ Solo te toca abrir tu terminal favorita, navegar hasta la carpeta y escribir
 
 Se empezará a crear los keyframes de dicho video.
 
-
-~~~~~~~~~~~~~~~
-
 Puedes completar los argumentos del keyframe.bat/keyframe.sh con los que necesites, asi es generar los keyframes simples de algun webrip con todo por defecto.
-
-~~~~~~~~~~~~~~~
 
 # CRC32
 
