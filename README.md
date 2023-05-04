@@ -21,7 +21,7 @@ ejemplo:
 
     py keyframes.py --check
 
-Lo que hará es saltarse todo el proceso
+Lo que hará es saltarse todo el proceso y comprbara sí se encuentran todas las dependencias en el sistema
 
 # Keyframes
 
