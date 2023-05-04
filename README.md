@@ -30,7 +30,9 @@ Se agregaron 5 archivos nuevos, 3 unicamente para Windows y 2 para Linux
 [Windows]
 
 keybatch.bat sirve para crear keyframes en batch de toda una carpeta
+
 keysendto.bat es para usarlo seleccionando los diferentes archivos en usar la opción de "Enviar a" de Windows
+
 keyframes.bat es el archivo normal que se coloca en tu variable de entorno y usar por cmd
 
 PD: para que las opciones de sendto y batch funcionen, keyframes debe estár sí o sí en tu variable de entorno
@@ -38,6 +40,7 @@ PD: para que las opciones de sendto y batch funcionen, keyframes debe estár sí
 [Linux]
 
 keyframes.sh es el archivo base normal para usar en tu terminal, este debe ir en  /home/usuario/.local/bin y agregar la carpeta al .bashrc
+
 keybatch.sh lo mismo que la version de windows, pero para Linux
 
 PD: keybatch requiere sí o sí que keyframes funcione sin problemas desde cualquier ubicacion
