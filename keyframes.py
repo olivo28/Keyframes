@@ -3,7 +3,12 @@ import os
 import subprocess
 import pathlib
 import glob
-import platform    
+import platform
+import alive_progress
+from alive_progress import config_handler
+import time
+
+
 
 from collections import OrderedDict
 
@@ -206,9 +211,12 @@ def key264(clip, out_txt3):
     return out_txt2
 
 
-def keyframe_simple(clip, out_path, autismo, analize, use_scxvid=None) -> None:
+def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> None:
 
-    out_txt = "# keyframe format v1\nfps 0\n"
+    if not lin:
+        out_txt = "# keyframe format v1\nfps 0\n"
+    else:
+        out_txt = "# XviD 2pass stat file (core version 1.4.-127)\n# Please do not modify this file\n"
     out_txt3 = ""
     
     if not isinstance(clip, vs.VideoNode):
@@ -227,16 +235,20 @@ def keyframe_simple(clip, out_path, autismo, analize, use_scxvid=None) -> None:
     else:
         clip1 = core.scxvid.Scxvid(clip1)
 
-    for i in range(clip1.num_frames):
-        props = clip1.get_frame(i).props
-        if not use_scxvid:
-            scenechange = props.Scenechange
-        else:
-            scenechange = props._SceneChangePrev
-        if scenechange:
-            out_txt3 += "%d\n" % i
-        if i % 1 == 0:
-            print(f"Generando keyframe: {i}/{frame_total(clip1)} frames", end="\r")
+    config_handler.set_global(stats="[a {rate} fps, faltan {eta}]", monitor="{count}/{total} frames", elapsed="en {elapsed}")
+
+    with alive_progress.alive_bar(clip1.num_frames) as bar:
+        for i in range(clip1.num_frames):
+            props = clip1.get_frame(i).props
+            if not use_scxvid:
+                scenechange = props.Scenechange
+            else:
+                scenechange = props._SceneChangePrev
+            if scenechange:
+                out_txt3 += "%d\n" % i
+       
+            bar.title = "Analizando frames"
+            bar()
 
     print("\n")
 
@@ -252,10 +264,13 @@ def keyframe_simple(clip, out_path, autismo, analize, use_scxvid=None) -> None:
 
     return
 
-def doble(clip, out_path, autismo, analize, qp_file=None) -> None:
+def doble(clip, out_path, autismo, analize, lin,  qp_file=None) -> None:
 
     if not qp_file:
-        out_txt = "# keyframe format v1\nfps 0\n"
+        if not lin:
+            out_txt = "# keyframe format v1\nfps 0\n"
+        else:
+            out_txt = "# XviD 2pass stat file (core version 1.4.-127)\n# Please do not modify this file\n"
     else:
         out_txt = ""
 
@@ -274,19 +289,20 @@ def doble(clip, out_path, autismo, analize, qp_file=None) -> None:
     clip1 = core.scxvid.Scxvid(clip1)
     clip1 = core.wwxd.WWXD(clip1)
 
-    for i in range(clip1.num_frames):
-        props = clip1.get_frame(i).props
-        if props._SceneChangePrev == 1 or props.Scenechange == 1:
-            if not qp_file:
-                out_txt3 += "%d\n" % i
-            else:
-                out_txt += "%d I -1\n" % i
-        if i % 1 == 0:
-            if not qp_file:
-                print(f"Generando keyframes: {i}/{frame_total(clip1)} frames", end="\r")
-            else:
-                print(f"Generando QPFile: {i}/{frame_total(clip1)} frames", end="\r")
-                
+    config_handler.set_global(stats="[a {rate} fps, faltan {eta}]", monitor="{count}/{total} frames", elapsed="en {elapsed}")
+
+    with alive_progress.alive_bar(clip1.num_frames) as bar:
+        for i in range(clip1.num_frames):
+            props = clip1.get_frame(i).props
+            if props._SceneChangePrev == 1 or props.Scenechange == 1:
+                if not qp_file:
+                    out_txt3 += "%d\n" % i
+                else:
+                    out_txt += "%d I -1\n" % i
+
+            bar.title = "Analizando frames"
+            bar()
+
     print("\n")
 
     if not qp_file:
@@ -306,9 +322,7 @@ def doble(clip, out_path, autismo, analize, qp_file=None) -> None:
     
     return
 
-
-
-def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None, use_scxvid=None, analize=None) -> None:
+def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None, analize=None, lin=None, use_scxvid=None) -> None:
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
@@ -330,20 +344,20 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
             print("Ya existe el archivo...\nSaltando proceso.")            
         else:
             if use_scxvid:
-                keyframe_simple(clip, out_path, autismo, analize, use_scxvid, )
+                keyframe_simple(clip, out_path, autismo, analize, use_scxvid, lin)
             else:
-                keyframe_simple(clip, out_path, autismo, analize)    
+                keyframe_simple(clip, out_path, autismo, analize, lin)    
     else:
         if use_scxvid:
-            keyframe_simple(clip, out_path, autismo, analize, use_scxvid)
+            keyframe_simple(clip, out_path, autismo, analize, use_scxvid, lin)
         else:
-            keyframe_simple(clip, out_path, autismo, analize)
+            keyframe_simple(clip, out_path, autismo, analize, lin)
 
     borrar_archivos()
 
     return
 
-def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None, analize=None) -> None: ## aun ando pensandola xD
+def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None, analize=None, lin=None) -> None: ## aun ando pensandola xD
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
@@ -364,9 +378,9 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None
             print("Generando keyframes...")
             print("Ya existe el archivo...\nSaltando proceso.")
         else:
-            doble(clip, out_path, autismo, analize)
+            doble(clip, out_path, autismo, analize, lin)
     else:
-        doble(clip, out_path, autismo, analize)
+        doble(clip, out_path, autismo, analize, lin)
 
     borrar_archivos()
     
@@ -423,12 +437,12 @@ def main():
         out_path = args.out_file    
 
     if args.use_doble:
-        generate_keyframes_double(clip, out_path, args.autismo, args.reescribir, args.analize)
+        generate_keyframes_double(clip, out_path, args.autismo, args.reescribir, args.analize, args.linux)
     else:
         if not args.use_scxvid:
-            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.analize)
+            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.analize, args.linux)
         else:
-            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.use_scxvid, args.analize)
+            generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.analize, args.linux, args.use_scxvid)
             
 
 if __name__ == "__main__":
@@ -439,7 +453,8 @@ if __name__ == "__main__":
     parser.add_argument('--out-file', help="el archivo al que escribir el cambio de escenas en el formato de Aegisub; por defecto a '_keyframes.txt' en el mismo directorio que se encuentra el video.")
     parser.add_argument('--reescribir', action='store_true', help="habilita reescribir el archivo en caso de que exista...")
     parser.add_argument('--analize', action='store_true', help="deshabilita el uso de ffprobe para analizar los I-Frames generados por x264/x265.")
-    parser.add_argument('--check',  action='store_true', help="comprueba si están presentes todas las dependencia.s")
+    parser.add_argument('--check',  action='store_true', help="comprueba si están presentes todas las dependencias.")
+    parser.add_argument('--linux',  action='store_true', help="el archivo de keyframes sera compatible con aegisubs en linux")
     parser.add_argument('--clip', help="el video al que generarle el keyframe.")
     args = parser.parse_args()
     main()

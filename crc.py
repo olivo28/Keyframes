@@ -2,6 +2,7 @@ import argparse
 import pathlib
 import os
 import binascii
+from tqdm import tqdm
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
@@ -9,12 +10,18 @@ __version__ = '1.1'
 
 def calcular_crc(filename):
 
-    buf = open(filename,'rb').read()
-    buf = (binascii.crc32(buf) & 0xFFFFFFFF)
+    buf = open(filename,'rb')
+    total_size = os.path.getsize(filename)
 
-    crc = "%08X" % buf
-    
-    return crc
+    crc = 0
+    with tqdm(total=total_size, unit='MB', unit_scale=True, desc='Calculando el CRC...') as pbar:
+        for chunk in iter(lambda: buf.read(1024), b''):
+            crc = binascii.crc32(chunk, crc) & 0xFFFFFFFF
+            pbar.update(len(chunk))
+
+    crc_c = "%08X" % crc
+    print(f'El CRC calculado fue: {crc_c}')
+    return crc_c
 
 def colocar_crc(filename):
 
