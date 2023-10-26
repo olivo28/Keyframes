@@ -4,6 +4,7 @@ import subprocess
 import pathlib
 import glob
 import platform
+import importlib
 import alive_progress
 from alive_progress import config_handler
 import time
@@ -18,7 +19,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '2'
+__version__ = '2.1'
 
 def comprobrar():
 
@@ -46,10 +47,20 @@ def comprobrar():
     else:
         print(f"Sistema operativo {system} no soportado")
 
+    python_modules = ['tqdm', 'alive_progress']
+
+    print("\nComprobando que se encuentren ciertos modulos de Python instalados...\n")
+
+    for module in python_modules:
+        try:
+            getattr(importlib.import_module(module), "__name__")
+            print(f"{module} está instalado")
+        except AttributeError:
+            print(f"{module} no está instalado")
+
     vs_modules = ['wwxd', 'scxvid', 'ffms2', 'fmtc', 'resize', 'lsmas']
 
     print("\nComprobando que se encuentren ciertos modulos de Vapoursynth instalados...\n")
-
 
     try:
         vs_api = vs.core
@@ -64,21 +75,23 @@ def comprobrar():
     except vs.error.VSError:
         print("Vapoursynth no está instalado")
 
-def borrar_archivos():
+def borrar_archivos(nombre):
 
     print("Borrando archivos intermedios...")
 
-    lwi = glob.glob('*.lwi')
+    lwi = glob.glob(f'*{nombre}.lwi')
     for file in lwi:
         try:
             os.remove(file)
+            print(f'Borrando {file}')
         except:
             print("Error al remover: ", file)
 
-    ffindex = glob.glob('*.ffindex')
+    ffindex = glob.glob(f'*{nombre}.ffindex')
     for file in ffindex:
         try:
             os.remove(file)
+            print(f'Borrando {file}')
         except:
             print("Error al remover: ", file)
     
@@ -97,6 +110,14 @@ def calcular_tiempo(clip):
 
     return duracion
 
+def codec(clip):
+
+    command = f'ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
+    codec = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    codec1 = codec.decode('utf-8').rstrip('\r\n')
+
+    return codec1
+
 def info_video(clip, out_path) -> None:
 
     name = clip
@@ -105,17 +126,13 @@ def info_video(clip, out_path) -> None:
     else:
         clip1 = core.lsmas.LWLibavSource(clip)
 
-    command = f'ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
-    codec = subprocess.check_output(command, stderr=subprocess.STDOUT)
-    codec1 = codec.decode('utf-8').rstrip('\r\n')
-
     print(f"\nInformación del video...\nVideo: {name}", \
         f"\nResolución: {clip1.width}x{clip1.height}p", \
         f"\nCantidad de frames: {clip1.num_frames}", \
         f"- Duración: {calcular_tiempo(clip1)}", \
         f"\nFramerate: {clip1.fps}", \
         f"\nFormato: {clip1.format.name}", \
-        f"\nCodec: {codec1}", \
+        f"\nCodec: {codec(clip)}", \
         f"\nArchivo de Keyframes: {out_path}\n")
 
 def frame_total(clip):
@@ -126,7 +143,6 @@ def frame_total(clip):
         else:
             clip = core.lsmas.LWLibavSource(clip)
         
-
     frames = clip.num_frames
 
     return frames
@@ -195,7 +211,10 @@ def autista(clip, autismo):
 
 def key264(clip, out_txt3):
 
-    print("Analizando Keyframes generados por x264...")
+    if codec(clip) == "hevc":
+        print("Analizando Keyframes generados por x265...")
+    else:
+        print("Analizando Keyframes generados por x264...")
 
     out_txt1 = iframes(clip)
     out_txt1 = out_txt1.splitlines()
@@ -210,7 +229,6 @@ def key264(clip, out_txt3):
 
     return out_txt2
 
-
 def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> None:
 
     if not lin:
@@ -222,11 +240,12 @@ def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> N
     if not isinstance(clip, vs.VideoNode):
         if pathlib.Path(clip).suffix == ".mp4":
             clip1 = core.ffms2.Source(clip)
+            print(f'Usando FFMS2 - Nivel de autismo: {autismo}\n')
         else:
             clip1 = core.lsmas.LWLibavSource(clip)
+            print(f'Usando LSMAS - Nivel de autismo: {autismo}\n')
     else:
         clip1 = clip
-        print("usando este")
 
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = autista(clip1, autismo)
@@ -328,7 +347,7 @@ def doble(clip, out_path, autismo, analize, lin,  qp_file=None) -> None:
 def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None, analize=None, lin=None, use_scxvid=None) -> None:
 
     if not out_path:
-        out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
+        out_path = os.path.splitext(clip)[0] + "_keyframes.log"
         info_video(clip, out_path)
     else:
         info_video(clip, out_path)
@@ -356,14 +375,14 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
         else:
             keyframe_simple(clip, out_path, autismo, analize, lin)
 
-    borrar_archivos()
+    borrar_archivos(clip)
 
     return
 
 def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None, analize=None, lin=None) -> None: ## aun ando pensandola xD
 
     if not out_path:
-        out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
+        out_path = os.path.splitext(clip)[0] + "_keyframes.log"
         info_video(clip, out_path)
     else:
         info_video(clip, out_path)
@@ -385,15 +404,14 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None
     else:
         doble(clip, out_path, autismo, analize, lin)
 
-    borrar_archivos()
+    borrar_archivos(clip)
     
     return
-
 
 def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -> None:
 
     if not out_path:
-        out_path = os.path.splitext(clip)[0] + "_qpfile.txt"
+        out_path = os.path.splitext(clip)[0] + "_qpfile.log"
 
     if not autismo:
         autismo = int(3)
@@ -412,7 +430,7 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
     else:
         doble(clip, out_path, autismo, analize, qp_file=1)
 
-    borrar_archivos()
+    borrar_archivos(clip)
     
     return
 
@@ -435,7 +453,7 @@ def main():
         args.autismo = int(0)
 
     if not args.out_file:
-        out_path = os.path.splitext(clip)[0] + "_keyframes.txt"
+        out_path = os.path.splitext(clip)[0] + "_keyframes.log"
     else:
         out_path = args.out_file    
 
@@ -447,7 +465,6 @@ def main():
         else:
             generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.analize, args.linux, args.use_scxvid)
             
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--autismo', help="el modo a usar para hacer el keyframe... de 1 hasta 4, a mayor el numero de modo, mayor detección de escenas, pero más tiempo de procesado. Valor por defecto: 3")

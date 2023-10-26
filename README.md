@@ -8,6 +8,8 @@
    * ffmpeg y ffprobe: (https://ffmpeg.org)
    * L-SMASH-Works (https://github.com/VFR-maniac/L-SMASH-Works)
    * FFMS2 (https://github.com/FFMS/ffms2)
+   * tqdm (https://github.com/tqdm/tqdm)
+   * alive_progress (https://github.com/rsalmei/alive-progress)
 
    PD: ffmpeg y ffprobe deberia estar en el PATH del usuario
 
@@ -68,9 +70,11 @@ El script sirve en 2 formas, usando Python o desde Vapoursynth
 Todas los argumentos son opcionales, menos el clip...
 
         --autismo = el nivel de "autismo" del script.
+        --check = analiza si tienes todas las dependencias instaladas
+        --linux = para especificar si se crea en linux el keyframe [Linux por alguna razón no reconoce le keyframe creado normalmente, tuve que hacer unos cambios]
         --use-scxvid = le dice al script que use scxvid en vez de WWXD.
         --use-doble = le dice al script que use tanto scxvid como WWXD para generar el keyframe. [Recomendado]
-        --out-file OUT_FILE = el archivo al que escribir los keyframes [Opcional, en caso de no especificar uno, se creara con el mismo nombre del video agregando: _keyframes.txt]
+        --out-file OUT_FILE = el archivo al que escribir los keyframes [Opcional, en caso de no especificar uno, se creara con el mismo nombre del video agregando: _keyframes.log]
         --reescribir = Por defecto, el script comprueba si existe o no el archivo, en caso de existir, el proceso se salta... con la opcion, dicho archivo es reescrito.
         --analize = deshabilita el uso de ffprobe para analizar los I-Frames generados por x264/x265. 
         --clip = el video al que generarle el keyframe
@@ -194,7 +198,6 @@ Puedes completar los argumentos del keyframe.bat/keyframe.sh con los que necesit
 # CRC32
 
 Agregado un script para calcular y colocar CRC32 a tus videos...
-
 
 Argumentos que toma:
 
