@@ -175,7 +175,7 @@ def extraer_audio(clip, stream, out_path=None):
 def autista(clip, autismo):
 
     if int(autismo) == int(0):
-        clip1 = clip
+        clip1 = clip1 = core.resize.Bilinear(clip, clip.height, clip.width, format=vs.YUV420P8)
     if int(autismo) == int(1):
         clip1 = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)
     if int(autismo) == int(2):
@@ -226,6 +226,7 @@ def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> N
             clip1 = core.lsmas.LWLibavSource(clip)
     else:
         clip1 = clip
+        print("usando este")
 
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = autista(clip1, autismo)
@@ -279,8 +280,10 @@ def doble(clip, out_path, autismo, analize, lin,  qp_file=None) -> None:
     if not isinstance(clip, vs.VideoNode):
         if pathlib.Path(clip).suffix == ".mp4":
             clip1 = core.ffms2.Source(clip)
+            print(f'Usando FFMS2 - Nivel de autismo: {autismo}\n')
         else:
             clip1 = core.lsmas.LWLibavSource(clip)
+            print(f'Usando LSMAS - Nivel de autismo: {autismo}\n')
     else:
         clip1 = clip
 
