@@ -191,7 +191,7 @@ def extraer_audio(clip, stream, out_path=None):
 def autista(clip, autismo):
 
     if int(autismo) == int(0):
-        clip1 = clip1 = core.resize.Bilinear(clip, clip.height, clip.width, format=vs.YUV420P8)
+        clip1 = core.resize.Bilinear(clip, clip.height, clip.width, format=vs.YUV420P8)
     if int(autismo) == int(1):
         clip1 = core.resize.Bilinear(clip, 640, 360, format=vs.YUV420P8)
     if int(autismo) == int(2):
@@ -284,7 +284,7 @@ def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> N
 
     return
 
-def doble(clip, out_path, autismo, analize, lin,  qp_file=None) -> None:
+def doble(clip, out_path, autismo, analize, lin, qp_file=None) -> None:
 
     if not qp_file:
         if not lin:
@@ -366,12 +366,12 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
             print("Ya existe el archivo...\nSaltando proceso.")            
         else:
             if use_scxvid:
-                keyframe_simple(clip, out_path, autismo, analize, use_scxvid, lin)
+                keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid)
             else:
                 keyframe_simple(clip, out_path, autismo, analize, lin)    
     else:
         if use_scxvid:
-            keyframe_simple(clip, out_path, autismo, analize, use_scxvid, lin)
+            keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid)
         else:
             keyframe_simple(clip, out_path, autismo, analize, lin)
 
@@ -379,7 +379,7 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
 
     return
 
-def generate_keyframes_double(clip, out_path=None, autismo=None, reescribir=None, analize=None, lin=None) -> None: ## aun ando pensandola xD
+def generate_keyframes_double(clip, out_path=None, autismo=None, analize=None, lin=None, reescribir=None) -> None: ## aun ando pensandola xD
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_keyframes.log"
@@ -450,7 +450,7 @@ def main():
         args.autismo = int(3)
 
     if not args.analize:
-        args.autismo = int(0)
+        args.analize = int(0)
 
     if not args.out_file:
         out_path = os.path.splitext(clip)[0] + "_keyframes.log"
@@ -458,7 +458,7 @@ def main():
         out_path = args.out_file    
 
     if args.use_doble:
-        generate_keyframes_double(clip, out_path, args.autismo, args.reescribir, args.analize, args.linux)
+        generate_keyframes_double(clip, out_path, args.autismo, args.analize, args.linux, args.reescribir)
     else:
         if not args.use_scxvid:
             generate_keyframes_single(clip, out_path, args.autismo, args.reescribir, args.analize, args.linux)
