@@ -123,7 +123,7 @@ def info_video(clip, out_path) -> None:
     if pathlib.Path(clip).suffix == ".mp4":
         clip1 = core.ffms2.Source(clip)
     else:
-        clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
+        clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'))
         
     print(f"\nInformación del video...\nVideo: {name}", \
         f"\nResolución: {clip1.width}x{clip1.height}p", \
@@ -140,7 +140,7 @@ def frame_total(clip):
         if pathlib.Path(clip).suffix == ".mp4":
             clip1 = core.ffms2.Source(clip)
         else:
-            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
+            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'))
     else:
         clip1 = clip
         
@@ -243,7 +243,7 @@ def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> N
             clip1 = core.ffms2.Source(clip)
             print(f'Usando FFMS2 - Nivel de autismo: {autismo}\n')
         else:
-            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
+            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'))
             print(f'Usando LSMAS - Nivel de autismo: {autismo}\n')
     else:
         clip1 = clip
@@ -302,11 +302,11 @@ def doble(clip, out_path, autismo, analize, lin, qp_file=None) -> None:
             clip1 = core.ffms2.Source(clip)
             print(f'Usando FFMS2 - Nivel de autismo: {autismo}\n')
         else:
-            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
+            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'))
             print(f'Usando LSMAS - Nivel de autismo: {autismo}\n')
     else:
         clip1 = clip
-
+    
     clip1 = core.fmtc.resample(clip1, css="420")
     clip1 = autista(clip1, autismo)[10:250]
     clip1 = core.scxvid.Scxvid(clip1)
