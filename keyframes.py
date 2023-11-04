@@ -308,7 +308,7 @@ def doble(clip, out_path, autismo, analize, lin, qp_file=None) -> None:
         clip1 = clip
     
     clip1 = core.fmtc.resample(clip1, css="420")
-    clip1 = autista(clip1, autismo)[10:250]
+    clip1 = autista(clip1, autismo)
     clip1 = core.scxvid.Scxvid(clip1)
     clip1 = core.wwxd.WWXD(clip1)
 
