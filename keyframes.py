@@ -6,10 +6,8 @@ import glob
 import platform
 import importlib
 import alive_progress
+import sys
 from alive_progress import config_handler
-import time
-
-
 
 from collections import OrderedDict
 
@@ -19,7 +17,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '2.1'
+__version__ = '2.1.1'
 
 def comprobrar():
 
@@ -79,21 +77,22 @@ def borrar_archivos(nombre):
 
     print("Borrando archivos intermedios...")
 
-    lwi = glob.glob(f'*{nombre}.lwi')
-    for file in lwi:
-        try:
-            os.remove(file)
-            print(f'Borrando {file}')
-        except:
-            print("Error al remover: ", file)
-
-    ffindex = glob.glob(f'*{nombre}.ffindex')
-    for file in ffindex:
-        try:
-            os.remove(file)
-            print(f'Borrando {file}')
-        except:
-            print("Error al remover: ", file)
+    if pathlib.Path(nombre).suffix == ".mp4":
+        file = f'{os.path.dirname(nombre)}/{pathlib.Path(nombre).name}.ffindex'
+        if file:
+            try:
+                os.remove(file)
+                print(f'Borrado {pathlib.Path(file).name}')
+            except:
+                print("Error al remover: ", {pathlib.Path(file).name})
+    else:
+        file = f'{pathlib.Path(nombre).name}.lwi'
+        if file:
+            try:
+                os.remove(file)
+                print(f'Borrado {file}')
+            except:
+                print("Error al remover: ", file)
     
     return
 
@@ -120,12 +119,12 @@ def codec(clip):
 
 def info_video(clip, out_path) -> None:
 
-    name = clip
+    name = os.path.basename(clip)
     if pathlib.Path(clip).suffix == ".mp4":
         clip1 = core.ffms2.Source(clip)
     else:
-        clip1 = core.lsmas.LWLibavSource(clip)
-
+        clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
+        
     print(f"\nInformación del video...\nVideo: {name}", \
         f"\nResolución: {clip1.width}x{clip1.height}p", \
         f"\nCantidad de frames: {clip1.num_frames}", \
@@ -139,11 +138,13 @@ def frame_total(clip):
 
     if not isinstance(clip, vs.VideoNode):
         if pathlib.Path(clip).suffix == ".mp4":
-            clip = core.ffms2.Source(clip)
+            clip1 = core.ffms2.Source(clip)
         else:
-            clip = core.lsmas.LWLibavSource(clip)
+            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
+    else:
+        clip1 = clip
         
-    frames = clip.num_frames
+    frames = clip1.num_frames
 
     return frames
 
@@ -242,7 +243,7 @@ def keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid=None) -> N
             clip1 = core.ffms2.Source(clip)
             print(f'Usando FFMS2 - Nivel de autismo: {autismo}\n')
         else:
-            clip1 = core.lsmas.LWLibavSource(clip)
+            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
             print(f'Usando LSMAS - Nivel de autismo: {autismo}\n')
     else:
         clip1 = clip
@@ -301,13 +302,13 @@ def doble(clip, out_path, autismo, analize, lin, qp_file=None) -> None:
             clip1 = core.ffms2.Source(clip)
             print(f'Usando FFMS2 - Nivel de autismo: {autismo}\n')
         else:
-            clip1 = core.lsmas.LWLibavSource(clip)
+            clip1 = core.lsmas.LWLibavSource(clip, cache=True, cachefile=(f'{os.path.basename(clip)}.lwi'), cachedir=os.path.dirname(clip))
             print(f'Usando LSMAS - Nivel de autismo: {autismo}\n')
     else:
         clip1 = clip
 
     clip1 = core.fmtc.resample(clip1, css="420")
-    clip1 = autista(clip1, autismo)
+    clip1 = autista(clip1, autismo)[10:250]
     clip1 = core.scxvid.Scxvid(clip1)
     clip1 = core.wwxd.WWXD(clip1)
 
@@ -374,8 +375,10 @@ def generate_keyframes_single(clip, out_path=None, autismo=None, reescribir=None
             keyframe_simple(clip, out_path, autismo, analize, lin, use_scxvid)
         else:
             keyframe_simple(clip, out_path, autismo, analize, lin)
-
+        
     borrar_archivos(clip)
+
+    print("Proceso terminado.")
 
     return
 
@@ -403,9 +406,11 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, analize=None, l
             doble(clip, out_path, autismo, analize, lin)
     else:
         doble(clip, out_path, autismo, analize, lin)
-
-    borrar_archivos(clip)
     
+    borrar_archivos(clip)
+
+    print("Proceso terminado.")
+
     return
 
 def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -> None:
@@ -429,9 +434,11 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
             doble(clip, out_path, autismo, analize, qp_file=1)
     else:
         doble(clip, out_path, autismo, analize, qp_file=1)
-
-    borrar_archivos(clip)
     
+    borrar_archivos(clip)
+
+    print("Proceso terminado.")
+
     return
 
 def main():

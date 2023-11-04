@@ -25,6 +25,12 @@ ejemplo:
 
 Lo que hará es saltarse todo el proceso y comprbara sí se encuentran todas las dependencias en el sistema
 
+# Keyframe GUI
+
+Graciasa nuestro amigo de [CiferrC](https://github.com/RcUchiha), ahora hay una GUI para aplicar keyframes, sirve tanto para Windows como Linux.
+
+[Keyframes-GUI](https://github.com/RcUchiha/Keyframes-GUI)
+
 # Archivos extras
 
 Se agregaron 5 archivos nuevos, 3 unicamente para Windows y 2 para Linux
