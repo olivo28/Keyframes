@@ -413,7 +413,7 @@ def generate_keyframes_double(clip, out_path=None, autismo=None, analize=None, l
 
     return
 
-def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -> None:
+def generate_qpfile_double(clip, fileName, out_path=None, autismo=None, lin=None, reescribir=None) -> None:
 
     if not out_path:
         out_path = os.path.splitext(clip)[0] + "_qpfile.log"
@@ -431,11 +431,11 @@ def generate_qpfile_double(clip, out_path=None, autismo=None, reescribir=None) -
             print("Generando QPFile...")
             print("Ya existe el archivo...\nSaltando proceso.")
         else:
-            doble(clip, out_path, autismo, analize, qp_file=1)
+            doble(clip, out_path, autismo, analize, lin, qp_file=1)
     else:
-        doble(clip, out_path, autismo, analize, qp_file=1)
-    
-    borrar_archivos(clip)
+        doble(clip, out_path, autismo, analize, lin, qp_file=1)
+        
+    borrar_archivos(fileName)
 
     print("Proceso terminado.")
 
