@@ -4,6 +4,7 @@ import subprocess
 import pathlib
 import glob
 import platform
+import re
 import importlib
 import alive_progress
 import sys
@@ -164,25 +165,35 @@ def iframes(clip):
 
 def extraer_audio(clip, stream, out_path=None):
 
-    command = f'ffprobe -v error -select_streams a:{stream} -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
-    codec = subprocess.check_output(command, stderr=subprocess.STDOUT)
-    codec1 = codec.decode('utf-8').rstrip('\r\n')
+    command1 = f'ffprobe -v error -select_streams a:{stream} -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
+    codec = subprocess.check_output(command1, stderr=subprocess.STDOUT)
+    codec1 = codec.decode('utf-8')
+    codec1 = codec1.rstrip('\r\n')
 
+    codec1_without_r = re.sub(r'\r', '', codec1)
+    codec1_lines = codec1_without_r.split('\n')
+
+    unique_codec = set(codec1_lines).pop()
+        
     stream1 = stream + 1
     
     if pathlib.Path(clip).suffix == ".m2ts":
-        codec = "wav"
-        if not out_path:
-            out_path = f'{os.path.basename(clip)[:-5]}_audio_0{stream1}.{codec}'
+        if unique_codec == "pcm_bluray":
+            codec2 = "wav"  
         else:
-            out_path = f'{out_path}\{os.path.basename(clip)[:-5]}_audio_0{stream1}.{codec}'
+            codec2 = unique_codec
+
+        if not out_path:
+            out_path = f'{os.path.basename(clip)[:-5]}_audio_0{stream1}.{codec2}'
+        else:
+            out_path = f'{out_path}\{os.path.basename(clip)[:-5]}_audio_0{stream1}.{codec2}'
     else:
         if not out_path:
-            out_path = f'{os.path.basename(clip)[:-4]}_audio_0{stream1}.{codec1}'
+            out_path = f'{os.path.basename(clip)[:-4]}_audio_0{stream1}.{codec2}'
         else:
-            out_path = f'{out_path}\{os.path.basename(clip)[:-4]}_audio_0{stream1}.{codec1}'
+            out_path = f'{out_path}\{os.path.basename(clip)[:-4]}_audio_0{stream1}.{codec2}'
     
-    if pathlib.Path(clip).suffix == ".m2ts":
+    if unique_codec == "pcm_bluray":
         command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec pcm_s24le "{out_path}"'
     else:
         command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec copy "{out_path}"'
