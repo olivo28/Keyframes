@@ -15,10 +15,18 @@ Descarga e instala los siguientes filtros:
 - [wwxd](https://github.com/dubhater/vapoursynth-wwxd)  
 - [scxvid](https://github.com/dubhater/vapoursynth-scxvid)  
 - [L-SMASH-Works](https://github.com/HomeOfAviSynthPlusEvolution/L-SMASH-Works)  
-- [FFMS2](https://github.com/FFMS/ffms2)  
+- [FFMS2](https://github.com/FFMS/ffms2)
+
+---
 
 > **Nota:** En Windows, los filtros se copian en la carpeta:  
 > `C:\Users\TuUsuario\AppData\Roaming\VapourSynth\plugins64`
+
+### Librerías instalables con vsrepo.py
+```sh
+vsrepo.py install fmtconv scxvid lsmas ffms2
+```
+---
 
 También necesitas tener instalados:
 
@@ -33,8 +41,7 @@ También necesitas tener instalados:
 Usa `pip` para instalarlas desde la terminal:
 
 ```sh
-pip install tqdm
-pip install alive-progress
+pip install tqdm alive-progress
 ```
 
 ---
