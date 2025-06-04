@@ -24,7 +24,7 @@ Descarga e instala los siguientes filtros:
 
 ### Librerías instalables con vsrepo.py
 ```sh
-vsrepo.py install fmtconv scxvid lsmas ffms2
+vsrepo.py install fmtconv scxvid wwxd lsmas ffms2
 ```
 ---
 
