@@ -132,9 +132,12 @@ py keyframes.py [opciones]
 
 ```py
 import keyframes as kf
+import vapoursynth as vs
 
-kf.generate_keyframes_single(clip=clip, out_path="archivo_de_salida", autismo=3, reescribir=1)
-kf.generate_keyframes_double(clip=clip, out_path="archivo_de_salida", autismo=3)
+clip = video = vs.core.ffms2.Source("video.mkv") # Reemplaza "video.mkv" con tu archivo
+
+kf.generate_keyframes_single(clip=clip, out_path="archivo_de_salida.log", autismo=3, reescribir=True, analize=False, lin=False, use_scxvid=False)
+kf.generate_keyframes_double(clip=clip, out_path="archivo_de_salida.log", autismo=3, analize=False, lin=False, reescribir=True)
 ```
 
 - `reescribir` es opcional.
@@ -150,7 +153,7 @@ Requiere tener VapourSynth correctamente instalado.
 ```py
 import keyframes as kf
 
-kf.generate_qpfile_double(clip=clip, out_path="archivo_de_salida", autismo=3, reescribir=1)
+kf.generate_qpfile_double(clip=clip, fileName="video.mkv", out_path="archivo_de_salida.qp", autismo=3, lin=False, reescribir=True)
 ```
 
 > Útil para pasarle el QPFile al compresor y mantener los keyframes del análisis.

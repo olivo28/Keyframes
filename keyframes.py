@@ -8,6 +8,7 @@ import re
 import importlib
 import alive_progress
 import sys
+import shlex
 from alive_progress import config_handler
 
 from collections import OrderedDict
@@ -18,7 +19,7 @@ core = vs.core
 
 __author__ = "Olivo28"
 __license__ = 'MIT'
-__version__ = '2.1.1'
+__version__ = '2.1.3'
 
 def comprobrar():
 
@@ -113,7 +114,8 @@ def calcular_tiempo(clip):
 def codec(clip):
 
     command = f'ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
-    codec = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    args = shlex.split(command)
+    codec = subprocess.check_output(args, stderr=subprocess.STDOUT)
     codec1 = codec.decode('utf-8').rstrip('\r\n')
 
     return codec1
@@ -153,8 +155,9 @@ def iframes(clip):
 
     out_txt1 = ""
 
-    command = 'ffprobe -v error -show_entries frame=pict_type -of default=noprint_wrappers=1'.split()
-    out = subprocess.check_output(command + [clip]).decode()
+    command = f'ffprobe -v error -show_entries frame=pict_type -of default=noprint_wrappers=1 "{clip}"'
+    args = shlex.split(command)
+    out = subprocess.check_output(args).decode()
     f_types = out.replace('pict_type=','').split()
     frame_types = zip(range(len(f_types)), f_types)
     i_frames = [x[0] for x in frame_types if x[1]=='I']
@@ -166,39 +169,39 @@ def iframes(clip):
 def extraer_audio(clip, stream, out_path=None):
 
     command1 = f'ffprobe -v error -select_streams a:{stream} -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "{clip}"'
-    codec = subprocess.check_output(command1, stderr=subprocess.STDOUT)
-    codec1 = codec.decode('utf-8')
-    codec1 = codec1.rstrip('\r\n')
-
-    codec1_without_r = re.sub(r'\r', '', codec1)
-    codec1_lines = codec1_without_r.split('\n')
-
+    args1 = shlex.split(command1)
+    codec = subprocess.check_output(args1, stderr=subprocess.STDOUT)
+    codec1 = codec.decode('utf-8').strip()
+    codec1_lines = codec1.split('\n')
     unique_codec = set(codec1_lines).pop()
-        
+
     stream1 = stream + 1
-    
-    if pathlib.Path(clip).suffix == ".m2ts":
+    clip_path = pathlib.Path(clip)
+    clip_suffix = clip_path.suffix
+    clip_name_without_suffix = clip_path.stem  
+
+    if clip_suffix == ".m2ts":
         if unique_codec == "pcm_bluray":
-            codec2 = "wav"  
+            codec2 = "wav"
         else:
             codec2 = unique_codec
-
-        if not out_path:
-            out_path = f'{os.path.basename(clip)[:-5]}_audio_0{stream1}.{codec2}'
-        else:
-            out_path = f'{out_path}\{os.path.basename(clip)[:-5]}_audio_0{stream1}.{codec2}'
     else:
-        if not out_path:
-            out_path = f'{os.path.basename(clip)[:-4]}_audio_0{stream1}.{codec2}'
-        else:
-            out_path = f'{out_path}\{os.path.basename(clip)[:-4]}_audio_0{stream1}.{codec2}'
-    
+        codec2 = unique_codec
+
+    if not out_path:
+        out_path_obj = pathlib.Path(f"{clip_name_without_suffix}_audio_0{stream1}.{codec2}")
+    else:
+        out_path_obj = pathlib.Path(out_path) / f"{clip_name_without_suffix}_audio_0{stream1}.{codec2}"
+
+    final_out_path = str(out_path_obj)
+
     if unique_codec == "pcm_bluray":
-        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec pcm_s24le "{out_path}"'
+        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec pcm_s24le "{final_out_path}"'
     else:
-        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec copy "{out_path}"'
+        command = f'ffmpeg -loglevel quiet -stats -i "{clip}" -map 0:{stream1} -acodec copy "{final_out_path}"'
 
-    subprocess.check_output(command)
+    args = shlex.split(command)
+    subprocess.check_output(args)
 
 def autista(clip, autismo):
 
